@@ -3,6 +3,8 @@
 токена.
 
 > Alpha
+>
+> Python3.7 +
 ### Установка
 ```bash
 pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip
