@@ -23,6 +23,6 @@ print(dn.get_my_school_homework(1000002283077, datetime(2019, 9, 5), datetime(20
 ```
 ### Документация:
 
-##### https://api.dnevnik.ru/partners/swagger/ui/index#/
+#### https://api.dnevnik.ru/partners/swagger/ui/index#/
 
 *TODO: Подробная документация на 98 методов.........*
