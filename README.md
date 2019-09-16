@@ -26,10 +26,10 @@ password = "password"
 
 dn = dnevnik.DiaryAPI(login, password)
 
-print(dn.get_my_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15)))
-#  Получение домашнего задания для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
+print(dn.get_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15)))
+#  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
 
-print(dn.get_my_edu_groups())
+print(dn.get_edu_groups())
 #  Получение групп обучения текущего пользователя
 ```
 

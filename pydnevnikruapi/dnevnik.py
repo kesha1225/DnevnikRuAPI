@@ -93,7 +93,7 @@ class DiaryAPI:
         schools = self.api.get(f'users/{user_id}/schools').json()
         return schools
 
-    def get_my_edu_groups(self):
+    def get_edu_groups(self):
         edu_groups = self.api.get(f'users/me/edu-groups').json()
         return edu_groups
 
@@ -101,7 +101,7 @@ class DiaryAPI:
         edu_groups = self.api.get(f'users/{user_id}/edu-groups').json()
         return edu_groups
 
-    def get_my_memberships(self):
+    def get_memberships(self):
         schools_memberships = self.api.get(f'users/me/school-memberships').json()
         return schools_memberships
 
@@ -419,7 +419,7 @@ class DiaryAPI:
         group_timetable = self.api.get(f'edu-groups/{group_id}/timetables').json()
         return group_timetable
 
-    def get_my_feed(self):
+    def get_feed(self):
         my_feed = self.api.get(f'users/me/feed', params={'date': datetime.datetime.now()}).json()
         return my_feed
 
