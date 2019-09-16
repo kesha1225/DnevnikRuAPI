@@ -11,7 +11,7 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 ```
 ### Простой пример получения домашней работы на указанный период
 ```python
-from pydnevnikruapi.dnevnik import DiaryAPI
+from pydnevnikruapi import DiaryAPI
 from datetime import datetime
 
 login = "login"

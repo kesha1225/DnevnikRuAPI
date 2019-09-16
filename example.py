@@ -1,4 +1,4 @@
-from pydnevnikruapi.dnevnik import DiaryAPI
+from pydnevnikruapi import DiaryAPI
 from datetime import datetime
 
 login = "login"
