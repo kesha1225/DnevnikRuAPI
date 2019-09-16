@@ -4,6 +4,7 @@
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-alpha-blue.svg?cacheSeconds=2592000" />
   <img alt="Python 3.7+" src="https://img.shields.io/badge/Python-3.7+-%23FFD242" />
+  <img alt="ШУЕ-ППШ" src="https://img.shields.io/badge/%D0%A8%D0%A3%D0%95-%D0%9F%D0%9F%D0%A8-red" />
 </p>
 
 ### Установка
