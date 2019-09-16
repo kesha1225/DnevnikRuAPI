@@ -8,6 +8,7 @@ setup(
     author='kesha1225',
     packages=find_packages(),
     description='simple wrapper for dnevnik.ru API',
-    long_description="Информация - https://github.com/kesha1225/DnevnikRuAPI/blob/master/README.md",
-    install_requires=['requests']
+    python_requires='>=3.7.0',
+    install_requires=['requests'],
+    include_package_data=True
 )

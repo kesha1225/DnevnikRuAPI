@@ -1,4 +1,4 @@
-from pydnevnikruapi.dnevnik import *
+from pydnevnikruapi import *
 
 __version__ = '0.0.2'
 __author__ = 'kesha1225'
