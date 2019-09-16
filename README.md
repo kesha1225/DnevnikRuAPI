@@ -18,13 +18,13 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 Получение домашнего задания на указанный период.
 
 ```python
-from pydnevnikruapi import DiaryAPI
+from pydnevnikruapi import dnevnik
 from datetime import datetime
 
 login = "login"
 password = "password"
 
-dn = DiaryAPI(login, password)
+dn = dnevnik.DiaryAPI(login, password)
 
 print(dn.get_my_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15)))
 #  Домашнее задание для школы с id 1000002283077 с 2019-09-05 по 2019-09-15
