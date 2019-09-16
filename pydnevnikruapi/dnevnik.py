@@ -9,7 +9,7 @@ class DiaryAPI:
 
     @staticmethod
     def get_token(login, password):
-        token = requests.post('https://api.dnevnik.ru/v1/authorizations/bycredentials',
+        token = requests.post('https://api.dnevnik.ru/v2/authorizations/bycredentials',
                               json={"client_id": "1d7bd105-4cd1-4f6c-9ecc-394e400b53bd",
                                     "client_secret": "5dcb5237-b5d3-406b-8fee-4441c3a66c99",
                                     "username": f"{login}", f"password": f"{password}",
@@ -19,7 +19,7 @@ class DiaryAPI:
 
         return token
 
-    def get_school_id(self):
+    def get_my_school_id(self):
         school_id = requests.get('https://api.dnevnik.ru/v2.0/schools/person-schools',
                                  headers={'Access-Token': self.token}).json()[0]['id']
 
