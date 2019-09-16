@@ -52,19 +52,19 @@ class DiaryAPI:
     def __init__(self, login: str, password: str):
         self.api = DiaryBase(login, password)
 
-    def get_my_school(self):
+    def get_school(self):
         school_id = self.api.get('schools/person-schools').json()
         return school_id
 
-    def get_my_person(self):
+    def get_info(self):
         user_id = self.api.get('users/me').json()
         return user_id
 
-    def get_my_classmates(self):
+    def get_classmates(self):
         classmates = self.api.get(f'users/me/classmates').json()
         return classmates
 
-    def get_my_context(self):
+    def get_context(self):
         context = self.api.get(f'users/me/context').json()
         return context
 
@@ -73,7 +73,7 @@ class DiaryAPI:
         context = self.api.get(f'users/{user_id}/context').json()
         return context
 
-    def get_user_education_memberships(self, user_id: int):
+    def get_user_memberships(self, user_id: int):
         memberships = self.api.get(f'users/{user_id}/school-memberships').json()
         return memberships
 
@@ -81,11 +81,11 @@ class DiaryAPI:
         education = self.api.get(f'users/{user_id}/education').json()
         return education
 
-    def get_person_education_memberships(self, person_id: int):
+    def get_person_memberships(self, person_id: int):
         memberships = self.api.get(f'persons/{person_id}/school-memberships').json()
         return memberships
 
-    def get_my_schools(self):
+    def get_schools(self):
         schools = self.api.get(f'users/me/schools').json()
         return schools
 
@@ -101,52 +101,52 @@ class DiaryAPI:
         edu_groups = self.api.get(f'users/{user_id}/edu-groups').json()
         return edu_groups
 
-    def get_my_schools_memberships(self):
+    def get_my_memberships(self):
         schools_memberships = self.api.get(f'users/me/school-memberships').json()
         return schools_memberships
 
-    def get_edu_group_info(self, edu_group_id: int):
+    def get_group_info(self, edu_group_id: int):
         edu_group_info = self.api.get(f'edu-groups/{edu_group_id}').json()
         return edu_group_info
 
-    def get_edu_groups_info(self, edu_groups_list: list):
+    def get_groups_info(self, edu_groups_list: list):
         edu_groups_info = self.api.get(f'edu-groups', params={'eduGroups': edu_groups_list}).json()
         return edu_groups_info
 
-    def get_school_edu_groups(self, school_id: int):
+    def get_school_groups(self, school_id: int):
         school_edu_groups = self.api.get(f'schools/{school_id}/edu-groups').json()
         return school_edu_groups
 
-    def get_person_edu_groups(self, person_id: int):
+    def get_person_groups(self, person_id: int):
         person_edu_groups = self.api.get(f'persons/{person_id}/edu-groups').json()
         return person_edu_groups
 
-    def get_person_edu_groups_all(self, person_id: int):
+    def get_person_groups_all(self, person_id: int):
         person_edu_all = self.api.get(f'persons/{person_id}/edu-groups/all').json()
         return person_edu_all
 
-    def get_person_edu_groups_in_school(self, person_id: int, school_id: int):
+    def get_person_school_groups(self, person_id: int, school_id: int):
         person_edu_groups_in_school = self.api.get(f'persons/{person_id}/schools/{school_id}/edu-groups').json()
         return person_edu_groups_in_school
 
-    def get_edu_groups_pupils_list(self, edu_group_id: int):
+    def get_groups_pupils(self, edu_group_id: int):
         edu_groups_list = self.api.get(f'edu-groups/{edu_group_id}/persons').json()
         return edu_groups_list
 
-    def get_edu_groups_parallel(self, group_id: int):
+    def get_groups_parallel(self, group_id: int):
         edu_groups_list = self.api.get(f'edu-groups/{group_id}/parallel').json()
         return edu_groups_list
 
-    def get_edu_group_marks(self, group_id: int):
+    def get_group_marks(self, group_id: int):
         edu_groups_marks = self.api.get(f'edu-groups/{group_id}/final-marks').json()
         return edu_groups_marks
 
-    def get_person_marks_in_group(self, person_id: int, group_id: int):
+    def get_person_group_marks(self, person_id: int, group_id: int):
         #  TODO: check strange response
         person_marks_in_group = self.api.get(f'persons/{person_id}/edu-groups/{group_id}/final-marks').json()
         return person_marks_in_group
 
-    def get_final_person_marks_in_group(self, person_id: int, group_id: int):
+    def get_person_group_marks_final(self, person_id: int, group_id: int):
         person_final_marks_in_group = self.api.get(f'persons/{person_id}/edu-groups/{group_id}/allfinalmarks').json()
         return person_final_marks_in_group
 
@@ -154,7 +154,7 @@ class DiaryAPI:
         group_subject_marks = self.api.get(f'edu-groups/{group_id}/subjects/{subject_id}/final-marks').json()
         return group_subject_marks
 
-    def get_my_friends(self):
+    def get_friends(self):
         my_friends = self.api.get(f'users/me/friends').json()
         return my_friends
 
@@ -162,18 +162,18 @@ class DiaryAPI:
         user_friends = self.api.get(f'users/{user_id}/friends').json()
         return user_friends
 
-    def get_my_school_homework(self, school_id: int, start_time=datetime.datetime.now(),
-                               end_time=datetime.datetime.now()):
+    def get_school_homework(self, school_id: int, start_time=datetime.datetime.now(),
+                            end_time=datetime.datetime.now()):
         homework = self.api.get(f'users/me/school/{school_id}/homeworks',
                                 params={'startDate': start_time, 'endDate': end_time}).json()
         return homework
 
-    def get_my_homework_by_id(self, homework_id: int):
+    def get_homework_by_id(self, homework_id: int):
         homework = self.api.get(f'users/me/school/homeworks', params={'homeworkId': homework_id}).json()
         return homework
 
-    def get_person_school_homework(self, school_id: int, person_id: int, start_time=datetime.datetime.now(),
-                                   end_time=datetime.datetime.now()):
+    def get_person_homework(self, school_id: int, person_id: int, start_time=datetime.datetime.now(),
+                            end_time=datetime.datetime.now()):
         homework = self.api.get(f'persons/{person_id}/school/{school_id}/homeworks',
                                 params={'startDate': start_time, 'endDate': end_time}).json()
         return homework
@@ -265,37 +265,33 @@ class DiaryAPI:
         lessons_info = self.api.get(f'edu-groups/{group_id}/lessons/{start_time}/{end_time}').json()
         return lessons_info
 
-    def get_group_lessons_subject_info(self, group_id: int, start_time=datetime.datetime.now(),
-                                       end_time=datetime.datetime.now()):
-        lessons_info = self.api.get(f'edu-groups/{group_id}/lessons/{start_time}/{end_time}').json()
-        return lessons_info
-
     def get_marks_histogram(self, work_id: int):
         marks_histogram = self.api.get(f'works/{work_id}/marks/histogram').json()
         return marks_histogram
 
-    def get_subject_marks_histogram_by_period(self, group_id: int, period_id: int, subject_id: int):
+    def get_subject_marks_histogram(self, group_id: int, period_id: int, subject_id: int):
         marks_histogram = self.api.get(
             f'periods/{period_id}/subjects/{subject_id}/groups/{group_id}/marks/histogram').json()
         return marks_histogram
 
-    def get_mark_by_mark_id(self, mark_id: int):
+    def get_mark_by_id(self, mark_id: int):
         mark_info = self.api.get(f'marks/{mark_id}').json()
         return mark_info
 
-    def get_marks_by_work_id(self, work_id: int):
+    def get_marks_by_work(self, work_id: int):
         marks = self.api.get(f'works/{work_id}/marks').json()
         return marks
 
-    def get_marks_by_lesson_id(self, lesson_id: int):
+    def get_marks_by_lesson(self, lesson_id: int):
         marks = self.api.get(f'lessons/{lesson_id}/marks').json()
         return marks
 
-    def get_marks_by_lessons_ids(self, lessons_ids: list):
+    def get_marks_by_lessons(self, lessons_ids: list):
         marks = self.api.post(f'lessons/marks', data={'lessons': lessons_ids}).json()
         return marks
 
-    def get_group_marks(self, group_id: int, start_time=datetime.datetime.now(), end_time=datetime.datetime.now()):
+    def get_group_marks_period(self, group_id: int, start_time=datetime.datetime.now(),
+                               end_time=datetime.datetime.now()):
         marks = self.api.get(f'edu-groups/{group_id}/marks/{start_time}/{end_time}').json()
         return marks
 
@@ -305,8 +301,8 @@ class DiaryAPI:
             f'edu-groups/{group_id}/subjects/{subject_id}/marks/{start_time}/{end_time}').json()
         return marks
 
-    def get_person_school_marks(self, person_id: int, school_id: int, start_time=datetime.datetime.now(),
-                                end_time=datetime.datetime.now()):
+    def get_person_marks(self, person_id: int, school_id: int, start_time=datetime.datetime.now(),
+                         end_time=datetime.datetime.now()):
         marks = self.api.get(f'persons/{person_id}/schools/{school_id}/marks/{start_time}/{end_time}').json()
         return marks
 
@@ -335,7 +331,7 @@ class DiaryAPI:
         marks_values = self.api.get(f'marks/values/type/{marks_type}').json()
         return marks_values
 
-    def get_persons_in_group(self, group_id: int):
+    def get_group_persons(self, group_id: int):
         persons = self.api.get(f'persons', params={"eduGroup": group_id}).json()
         return persons
 
@@ -369,7 +365,7 @@ class DiaryAPI:
         school_profiles = self.api.get(f'schools', params={'schools': schools_ids}).json()
         return school_profiles
 
-    def get_my_person_schools(self):
+    def get_my_schools(self):
         person_schools = self.api.get(f'schools/person-schools').json()
         return person_schools
 
@@ -401,8 +397,8 @@ class DiaryAPI:
         lesson_task = self.api.get(f'lessons/{lesson_id}/tasks').json()
         return lesson_task
 
-    def get_person_subject_tasks(self, person_id: int, subject_id: int, start_time=datetime.datetime.now(),
-                                 end_time=datetime.datetime.now()):
+    def get_person_tasks(self, person_id: int, subject_id: int, start_time=datetime.datetime.now(),
+                         end_time=datetime.datetime.now()):
         person_subject_tasks = self.api.get(f'persons/{person_id}/tasks',
                                             params={'subject': subject_id, 'from': start_time, 'to': end_time}).json()
         return person_subject_tasks
@@ -431,7 +427,7 @@ class DiaryAPI:
         user_groups = self.api.get(f'users/{user_id}/groups').json()
         return user_groups
 
-    def get_my_children(self):
+    def get_children(self):
         my_children = self.api.get(f'users/me/children').json()
         return my_children
 
@@ -439,11 +435,11 @@ class DiaryAPI:
         user_rel = self.api.get(f'users/{user_id}/relatives').json()
         return user_rel
 
-    def get_my_relatives(self):
+    def get_relatives(self):
         my_rel = self.api.get(f'users/me/relatives').json()
         return my_rel
 
-    def get_my_children_relatives(self):
+    def get_children_relatives(self):
         my_children_relatives = self.api.get(f'users/me/childrenrelatives').json()
         return my_children_relatives
 
@@ -451,7 +447,7 @@ class DiaryAPI:
         user_info = self.api.get(f'users/{user_id}').json()
         return user_info
 
-    def get_my_roles(self):
+    def get_roles(self):
         my_roles = self.api.get(f'users/me/roles').json()
         return my_roles
 
@@ -459,8 +455,8 @@ class DiaryAPI:
         user_roles = self.api.get(f'users/{user_id}/roles').json()
         return user_roles
 
-    def get_weighted_group_average_marks(self, group_id: int, start_time=datetime.datetime.now(),
-                                         end_time=datetime.datetime.now()):
+    def get_group_average_marks(self, group_id: int, start_time=datetime.datetime.now(),
+                                end_time=datetime.datetime.now()):
         weighted_group_average_marks = self.api.get(f'edu-groups/{group_id}/wa-marks/{start_time}/{end_time}').json()
         return weighted_group_average_marks
 
