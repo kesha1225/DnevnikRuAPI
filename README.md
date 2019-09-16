@@ -35,4 +35,4 @@ print(dn.get_my_school_homework(1000002283077, datetime(2019, 9, 5), datetime(20
  ## TODO:
  1. **Подробная документация на 98 методов.**
 
- ### Список [контрибьюторов](https://github.com/0susboy0/DnevnikRuAPI/graphs/contributors) данного проекта.
+ ### Список [контрибьюторов](https://github.com/kesha1225/DnevnikRuAPI/graphs/contributors) данного проекта.
