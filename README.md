@@ -12,8 +12,6 @@
 
 ```sh
 pip3 install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgrade
-
-cd DnevnikRuAP
 ```
 
 ## Пример
