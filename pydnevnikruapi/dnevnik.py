@@ -1,5 +1,6 @@
 import requests
 import datetime
+from pydnevnikruapi.excetions import DiaryError
 
 
 class DiaryBase:
@@ -8,17 +9,18 @@ class DiaryBase:
         self.host = 'https://api.dnevnik.ru/v2/'
         self.token = self.get_token(login, password)
 
-    @staticmethod
-    def get_token(login, password):
-        token = requests.post('https://api.dnevnik.ru/v2/authorizations/bycredentials',
-                              json={"client_id": "1d7bd105-4cd1-4f6c-9ecc-394e400b53bd",
-                                    "client_secret": "5dcb5237-b5d3-406b-8fee-4441c3a66c99",
-                                    "username": login, f"password": password,
-                                    "scope": "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar,"
-                                             "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
-                                             "Files,Wall,Messages"}).json()['accessToken']
-
-        return token
+    def get_token(self, login, password):
+        token = self.session.post('https://api.dnevnik.ru/v2/authorizations/bycredentials',
+                                  json={"client_id": "1d7bd105-4cd1-4f6c-9ecc-394e400b53bd",
+                                        "client_secret": "5dcb5237-b5d3-406b-8fee-4441c3a66c99",
+                                        "username": login, f"password": password,
+                                        "scope": "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar,"
+                                                 "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
+                                                 "Files,Wall,Messages"}).json()
+        if token.get('type') == 'authorizationFailed':
+            raise DiaryError(token['description'])
+        else:
+            return token['accessToken']
 
     def get(self, method: str, params=None, **kwargs):
         if params is None:
@@ -243,7 +245,8 @@ class DiaryAPI:
             params={'subject': subject_id, 'from': start_time, 'to': end_time}).json()
         return lesson_logs
 
-    def get_person_lesson_logs(self, person_id: int, start_time=datetime.datetime.now(), end_time=datetime.datetime.now()):
+    def get_person_lesson_logs(self, person_id: int, start_time=datetime.datetime.now(),
+                               end_time=datetime.datetime.now()):
         lesson_logs = self.api.get(
             f'persons/{person_id}/lesson-log-entries', params={'startDate': start_time, 'endDate': end_time}).json()
         return lesson_logs
@@ -260,7 +263,8 @@ class DiaryAPI:
         lesson_info = self.api.post(f'lessons/many', data={'lessons': lessons_list}).json()
         return lesson_info
 
-    def get_group_lessons_info(self, group_id: int, start_time=datetime.datetime.now(), end_time=datetime.datetime.now()):
+    def get_group_lessons_info(self, group_id: int, start_time=datetime.datetime.now(),
+                               end_time=datetime.datetime.now()):
         lessons_info = self.api.get(f'edu-groups/{group_id}/lessons/{start_time}/{end_time}').json()
         return lessons_info
 
