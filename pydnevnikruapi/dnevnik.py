@@ -8,6 +8,7 @@ class DiaryBase:
         self.session = requests.Session()
         self.host = 'https://api.dnevnik.ru/v2/'
         self.token = self.get_token(login, password)
+        self.session.headers = {'Access-Token': self.token}
 
     def get_token(self, login, password):
         token = self.session.post('https://api.dnevnik.ru/v2/authorizations/bycredentials',
@@ -25,29 +26,25 @@ class DiaryBase:
     def get(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.get(self.host + method, params=params,
-                                   headers={'Access-Token': self.token}, **kwargs)
+        request = self.session.get(self.host + method, params=params, **kwargs)
         return request
 
     def post(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.post(self.host + method, data=params,
-                                    headers={'Access-Token': self.token}, **kwargs)
+        request = self.session.post(self.host + method, data=params, **kwargs)
         return request
 
     def delete(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.delete(self.host + method, params=params,
-                                      headers={'Access-Token': self.token}, **kwargs)
+        request = self.session.delete(self.host + method, params=params, **kwargs)
         return request
 
     def put(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.put(self.host + method, data=params,
-                                   headers={'Access-Token': self.token}, **kwargs)
+        request = self.session.put(self.host + method, data=params, **kwargs)
         return request
 
 
