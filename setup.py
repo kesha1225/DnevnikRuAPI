@@ -8,7 +8,5 @@ setup(
     author='kesha1225',
     packages=find_packages(),
     description='simple wrapper for dnevnik.ru API',
-    python_requires='>=3.7.0',
     install_requires=['requests'],
-    include_package_data=True
 )
