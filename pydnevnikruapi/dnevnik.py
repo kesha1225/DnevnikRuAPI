@@ -17,7 +17,7 @@ class DiaryBase:
                 "client_id": "1d7bd105-4cd1-4f6c-9ecc-394e400b53bd",
                 "client_secret": "5dcb5237-b5d3-406b-8fee-4441c3a66c99",
                 "username": login,
-                f"password": password,
+                "password": password,
                 "scope": "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar,"
                 "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
                 "Files,Wall,Messages",
