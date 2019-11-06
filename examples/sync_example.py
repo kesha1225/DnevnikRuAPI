@@ -1,4 +1,4 @@
-from pydnevnikruapi import dnevnik
+from pydnevnikruapi.sync import dnevnik
 from datetime import datetime
 
 login = "login"

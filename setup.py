@@ -8,5 +8,5 @@ setup(
     author="kesha1225",
     packages=find_packages(),
     description="simple wrapper for dnevnik.ru API",
-    install_requires=["requests"],
+    install_requires=["requests", "aiohttp"],
 )
