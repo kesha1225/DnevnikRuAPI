@@ -4,10 +4,13 @@ from pydnevnikruapi.sync.exceptions import DiaryError
 
 
 class DiaryBase:
-    def __init__(self, login: str, password: str):
+    def __init__(self, login: str = None, password: str = None, token: str = None):
         self.session = requests.Session()
         self.host = "https://api.dnevnik.ru/v2/"
-        self.token = self.get_token(login, password)
+        if token is None:
+            self.token = self.get_token(login, password)
+        else:
+            self.token = token
         self.session.headers = {"Access-Token": self.token}
 
     def get_token(self, login, password):
@@ -22,7 +25,10 @@ class DiaryBase:
                 "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
                 "Files,Wall,Messages",
             },
-        ).json()
+        )
+        if token.status_code != 200:
+            raise DiaryError("Сайт лежит или ведутся технические работы, использование api временно невозможно")
+        token = token.json()
         if token.get("type") == "authorizationFailed":
             raise DiaryError(token["description"])
         else:
@@ -30,8 +36,10 @@ class DiaryBase:
 
     @staticmethod
     def _check_response(response):
-        if response.headers.get("Content-Type") != "application/json":
-            raise DiaryError("Ошибка в API, проверьте правильность параметров")
+        if response.headers.get("Content-Type") == "text/html":
+            error_html = response.content.decode()
+            error_text = " ".join(word for word in error_html.split('<div class="error__description">')[-1].split("<p>")[1].strip()[:-4].split())
+            raise DiaryError(error_text)
         json_response = response.json()
         if isinstance(json_response, dict):
             if json_response.get("type") == "parameterInvalid":
@@ -69,8 +77,14 @@ class DiaryBase:
 
 
 class DiaryAPI:
-    def __init__(self, login: str, password: str):
-        self.api = DiaryBase(login, password)
+    def __init__(self, login: str = None, password: str = None, token: str = None):
+        if token is None:
+            self.api = DiaryBase(login=login, password=password)
+        else:
+            self.api = DiaryBase(token=token)
+
+    def get_token(self):
+        return self.api.token
 
     def get_school(self):
         school_id = self.api.get("schools/person-schools")
@@ -234,7 +248,6 @@ class DiaryAPI:
         return lesson_log
 
     def post_lesson_log(self, lesson_id: int, lesson_log_entry: str):
-        # TODO: Не работает, так как в дату все параметры кладутся
         """
         lesson_log_entry example:
         {

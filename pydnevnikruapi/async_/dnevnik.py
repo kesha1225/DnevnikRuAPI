@@ -4,8 +4,8 @@ import datetime
 
 
 class AsyncDiaryBase:
-    def __init__(self, login: str, password: str):
-        self.token = None
+    def __init__(self, login: str = None, password: str = None, token: str = None):
+        self.token = token
         self.login = login
         self.password = password
         self.session = aiohttp.ClientSession()
@@ -24,6 +24,9 @@ class AsyncDiaryBase:
                          "Files,Wall,Messages",
             },
         )
+        if token_info.status != 200:
+            await self.session.close()
+            raise DiaryError("Сайт лежит или ведутся технические работы, использование api временно невозможно")
         token = await token_info.json()
         if token.get("type") == "authorizationFailed":
             await self.close_session()
@@ -36,9 +39,11 @@ class AsyncDiaryBase:
         await self.session.close()
 
     async def _check_response(self, response):
-        if response.content_type != "application/json":
+        if response.content_type == "text/html":
             await self.close_session()
-            raise DiaryError("Ошибка в API, проверьте правильность параметров")
+            error_html = await response.text()
+            error_text = " ".join(word for word in error_html.split('<div class="error__description">')[-1].split("<p>")[1].strip()[:-4].split())
+            raise DiaryError(error_text)
         json_response = await response.json()
         if isinstance(json_response, dict):
             if json_response.get("type") == "apiUnknownError":
@@ -54,7 +59,6 @@ class AsyncDiaryBase:
     async def get(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-
         async with self.session.get(self.host + method, params=params, headers={'Access-Token': self.token},
                                     **kwargs) as response:
             await self._check_response(response)
@@ -92,8 +96,11 @@ class AsyncDiaryBase:
 
 
 class DiaryAPI:
-    def __init__(self, login: str, password: str):
-        self.api = AsyncDiaryBase(login, password)
+    def __init__(self, login: str = None, password: str = None, token: str = None):
+        if token is None:
+            self.api = AsyncDiaryBase(login=login, password=password)
+        else:
+            self.api = AsyncDiaryBase(token=token)
 
     async def get_school(self):
         school_id = await self.api.get("schools/person-schools")
