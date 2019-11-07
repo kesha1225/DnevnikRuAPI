@@ -6,8 +6,8 @@
   <img alt="The Unlicense" src="https://img.shields.io/badge/license-The%20Unlicense-blue" />
 </p>
 
-<h1 align="left">  dnevnik.ru API Wrapper </h1>
-<p align="left">Упрощение работы с всероссийским электронным дневником без получения токена.
+<h1 align="center">  api.dnevnik.ru Wrapper </h1>
+<p align="center">Упрощение работы с всероссийским электронным дневником как с токеном, так и без него.
 
 ## Установка
 
@@ -24,6 +24,7 @@ from datetime import datetime
 
 login = "login"
 password = "password"
+# Получаем доступ через логин и пароль
 
 dn = dnevnik.DiaryAPI(login, password)
 
@@ -74,9 +75,4 @@ if __name__ == '__main__':
 ## Документация
 [api.dnevnik.ru](https://api.dnevnik.ru/partners/swagger/ui/index#/)
 
-
- ## TODO:
- 1. **Подробная документация на 98 методов.**
-
- ### Список [контрибьюторов](https://github.com/kesha1225/DnevnikRuAPI/graphs/contributors) данного проекта.
 
