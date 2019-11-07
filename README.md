@@ -1,4 +1,4 @@
-<p>
+<p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-alpha-blue.svg?cacheSeconds=2592000" />
   <img alt="Python 3.7+" src="https://img.shields.io/badge/Python-3.7+-%23FFD242" />
   <img alt="code-style" src="https://img.shields.io/badge/code--style-black-%23000000" />
