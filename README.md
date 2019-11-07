@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
 Импортируем библиотеку и получаем доступ к api с помощью токена или логина и пароля
 
-Синхронно без токена
+**Синхронно** без токена
 ```python
 from pydnevnikruapi import dnevnik
 from datetime import datetime
@@ -92,7 +92,7 @@ password = "password"
 dn = dnevnik.DiaryAPI(login=login, password=password)
 ```
 
-Синхронно с токеном
+**Синхронно** с токеном
 ```python
 from pydnevnikruapi import dnevnik
 from datetime import datetime
@@ -102,7 +102,7 @@ token = "fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ"
 dn = dnevnik.DiaryAPI(token=token)
 ```
 
-Асинхронно без токена
+**Асинхронно** без токена
 ```python3
 from pydnevnikruapi.async_ import dnevnik
 import asyncio
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     # Запускаем все наши функции в event loop
 ```
 
-Асинхронно с токеном, **функция dn.api.get_token() нам не нужна**
+**Асинхронно** с токеном, *функция dn.api.get_token() нам не нужна*
 ```python3
 from pydnevnikruapi.async_ import dnevnik
 import asyncio
@@ -152,15 +152,45 @@ if __name__ == '__main__':
     # Запускаем все наши функции в event loop
 ```
 
-### **Методы dnevnik.ru**
+### **Методы dnevnik.ru**:
 
 ### Authorities
 
- - get_organizations - Список идентификаторов организаций текущего пользователя
- ```python
- dn.get_organizations()
- ```
+- get_organizations - Список идентификаторов организаций текущего пользователя
+```python
+dn.get_organizations()
+```
 
+- get_organization_info - Данные указанной организации пользователя
+```python
+dn.get_organization_info()
+```
+
+### AverageMarks
+
+- get_person_average_marks - Оценки персоны за отчетный период
+```python
+dn.get_person_average_marks()
+```
+
+- get_person_average_marks_by_subject - Оценка персоны по предмету за отчетный период
+```python
+dn.get_person_average_marks_by_subjects()
+```
+
+- get_group_average_marks_by_date - Оценки учебной группы по предмету за отчетный период до определенной даты
+```python
+dn.get_group_average_marks_by_date()
+```
+
+- get_group_average_marks_by_time - Оценки учебной группы за период
+```python
+dn.get_group_average_marks_by_time()
+```
+
+
+
+## Документация на сайте
 
 [api.dnevnik.ru](https://api.dnevnik.ru/partners/swagger/ui/index#/)
 
