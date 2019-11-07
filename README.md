@@ -170,23 +170,63 @@ dn.get_organization_info()
 
 - get_person_average_marks - Оценки персоны за отчетный период
 ```python
-dn.get_person_average_marks()
+dn.get_person_average_marks(person_id=1000002385955, period=1000002385971)
 ```
+|Параметр|Описание|
+|-|-|
+|person_id|ID выбранной персоны|
+|period|Период для получения оценок в unixtime|
 
 - get_person_average_marks_by_subject - Оценка персоны по предмету за отчетный период
 ```python
-dn.get_person_average_marks_by_subjects()
+dn.get_person_average_marks_by_subjects(person_id=1000002385955, period=1000002385971, subject_id=683725334)
 ```
+|Параметр|Описание|
+|-|-|
+|person_id|ID выбранной персоны|
+|period|Период для получения оценок в unixtime|
+|subject_id|ID выбранного предмета|
 
 - get_group_average_marks_by_date - Оценки учебной группы по предмету за отчетный период до определенной даты
 ```python
-dn.get_group_average_marks_by_date()
+import datetime
+
+dn.get_group_average_marks_by_date(group_id=14455222, period=1000002385971, date=datetime.datetime(2019, 11, 8))
 ```
+|Параметр|Описание|
+|-|-|
+|group_id|ID выбранной учебной группы|
+|period|Период для получения оценок в unixtime|
+|date|Конечная дата|
 
 - get_group_average_marks_by_time - Оценки учебной группы за период
 ```python
-dn.get_group_average_marks_by_time()
+dn.get_group_average_marks_by_time(group_id=14455222, start_time=datetime.datetime(2019, 11, 5),
+                                   end_time=datetime.datetime(2019, 11, 8))
 ```
+|Параметр|Описание|
+|-|-|
+|group_id|ID выбранной учебной группы|
+|start_time|Начальное время для получения оценок в unixtime|
+|end_time|Конечное время для получения оценок в unixtime|
+
+### Children
+
+- get_user_children - Получение списка детей по идентификатору родительского пользователя
+```python
+dn.get_user_children(user_id=1000001509233)
+```
+|Параметр|Описание|
+|-|-|
+|user_id|ID выбранного пользователя|
+
+- get_person_children - Получение списка детей по идентификатору родительской персоны
+```python
+dn.get_person_children(person_id=1000002385971)
+```
+|Параметр|Описание|
+|-|-|
+|person_id|ID выбранной персоны|
 
 
 
