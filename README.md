@@ -323,9 +323,7 @@ dn.get_memberships()
 
 ### EduGroups
 
-
-
-
+>docs WIP now
 
 
 ## Документация на сайте
