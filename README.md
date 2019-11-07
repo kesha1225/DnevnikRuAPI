@@ -77,6 +77,8 @@ if __name__ == '__main__':
 
 ## Документация
 
+**Документация на сайте** - [api.dnevnik.ru](https://api.dnevnik.ru/partners/swagger/ui/index#/)
+
 ### Начало работы
 
 Импортируем библиотеку и получаем доступ к api с помощью токена или логина и пароля
@@ -324,10 +326,3 @@ dn.get_memberships()
 ### EduGroups
 
 >docs WIP now
-
-
-## Документация на сайте
-
-[api.dnevnik.ru](https://api.dnevnik.ru/partners/swagger/ui/index#/)
-
-
