@@ -156,19 +156,19 @@ if __name__ == '__main__':
 
 ### Authorities
 
-- get_organizations - Список идентификаторов организаций текущего пользователя
+- **get_organizations** - Список идентификаторов организаций текущего пользователя
 ```python
 dn.get_organizations()
 ```
 
-- get_organization_info - Данные указанной организации пользователя
+- **get_organization_info** - Данные указанной организации пользователя
 ```python
 dn.get_organization_info()
 ```
 
 ### AverageMarks
 
-- get_person_average_marks - Оценки персоны за отчетный период
+- **get_person_average_marks** - Оценки персоны за отчетный период
 ```python
 dn.get_person_average_marks(person_id=1000002385955, period=1000002385971)
 ```
@@ -177,7 +177,7 @@ dn.get_person_average_marks(person_id=1000002385955, period=1000002385971)
 |person_id|ID выбранной персоны|
 |period|Период для получения оценок в unixtime|
 
-- get_person_average_marks_by_subject - Оценка персоны по предмету за отчетный период
+- **get_person_average_marks_by_subject** - Оценка персоны по предмету за отчетный период
 ```python
 dn.get_person_average_marks_by_subjects(person_id=1000002385955, period=1000002385971, subject_id=683725334)
 ```
@@ -187,7 +187,7 @@ dn.get_person_average_marks_by_subjects(person_id=1000002385955, period=10000023
 |period|Период для получения оценок в unixtime|
 |subject_id|ID выбранного предмета|
 
-- get_group_average_marks_by_date - Оценки учебной группы по предмету за отчетный период до определенной даты
+- **get_group_average_marks_by_date** - Оценки учебной группы по предмету за отчетный период до определенной даты
 ```python
 import datetime
 
@@ -199,7 +199,7 @@ dn.get_group_average_marks_by_date(group_id=14455222, period=1000002385971, date
 |period|Период для получения оценок в unixtime|
 |date|Конечная дата|
 
-- get_group_average_marks_by_time - Оценки учебной группы за период
+- **get_group_average_marks_by_time** - Оценки учебной группы за период
 ```python
 import datetime
 
@@ -214,7 +214,7 @@ dn.get_group_average_marks_by_time(group_id=14455222, start_time=datetime.dateti
 
 ### Children
 
-- get_user_children - Получение списка детей по идентификатору родительского пользователя
+- **get_user_children** - Получение списка детей по идентификатору родительского пользователя
 ```python
 dn.get_user_children(user_id=1000001509233)
 ```
@@ -222,7 +222,7 @@ dn.get_user_children(user_id=1000001509233)
 |-|-|
 |user_id|ID выбранного пользователя|
 
-- get_person_children - Получение списка детей по идентификатору родительской персоны
+- **get_person_children** - Получение списка детей по идентификатору родительской персоны
 ```python
 dn.get_person_children(person_id=1000002385971)
 ```
@@ -232,7 +232,7 @@ dn.get_person_children(person_id=1000002385971)
 
 ### Classmates
 
-- get_classmates - Список id пользователей одноклассников текущего пользователя,
+- **get_classmates** - Список id пользователей одноклассников текущего пользователя,
  если он является учеником, либо список активных участников образовательных групп пользователя во всех остальных случаях
 ```python
 dn.get_classmates()
@@ -240,12 +240,12 @@ dn.get_classmates()
 
 ### Context
 
-- get_context - Получение контекстной информации по пользователю
+- **get_context** - Получение контекстной информации по пользователю
 ```python
 dn.get_context()
 ```
 
-- get_user_context - Получение контекстной информации по пользователю
+- **get_user_context** - Получение контекстной информации по пользователю
 ```python
 dn.get_user_context(user_id=1000001509233)
 ```
@@ -255,7 +255,7 @@ dn.get_user_context(user_id=1000001509233)
 
 ### CriteriaJournalMarks
 
-- get_final_group_marks_by_subject - Метод, позволяющий получить итоговые оценки всего класса по указанному предмету
+- **get_final_group_marks_by_subjec**t - Метод, позволяющий получить итоговые оценки всего класса по указанному предмету
 ```python
 dn.get_final_group_marks_by_subject(group_id=10033, subject_id=45666212)
 ```
@@ -264,7 +264,7 @@ dn.get_final_group_marks_by_subject(group_id=10033, subject_id=45666212)
 |group_id|ID выбранной группы|
 |subject_id|ID выбранного предмета|
 
-- get_final_group_marks - Метод, позволяющий получить итоговые оценки всего класса (каждого ученика) по всем предметам
+- **get_final_group_marks** - Метод, позволяющий получить итоговые оценки всего класса (каждого ученика) по всем предметам
 ```python
 dn.get_final_group_marks(group_id=10033)
 ```
@@ -274,7 +274,7 @@ dn.get_final_group_marks(group_id=10033)
 
 ### EducationMemberships
 
-- get_user_memberships - Список участий в школах для произвольного пользователя
+- **get_user_memberships** - Список участий в школах для произвольного пользователя
 ```python
 dn.get_user_memberships(user_id=1000001509233)
 ```
@@ -282,7 +282,7 @@ dn.get_user_memberships(user_id=1000001509233)
 |-|-|
 |user_id|ID выбранного пользователя|
 
-- get_user_education - Список участий в школах для произвольной персоны
+- **get_user_education** - Список участий в школах для произвольной персоны
 ```python
 dn.get_user_education(person_id=1000001433233)
 ```
@@ -290,12 +290,12 @@ dn.get_user_education(person_id=1000001433233)
 |-|-|
 |person_id|ID выбранной персоны|
 
-- get_schools - Список идентификаторов школ текущего пользователя
+- **get_schools** - Список идентификаторов школ текущего пользователя
 ```python
 dn.get_schools()
 ```
 
-- get_user_schools - Список идентификаторов школ произвольного пользователя
+- **get_user_schools** - Список идентификаторов школ произвольного пользователя
 ```python
 dn.get_user_schools(user_id=1000005000233)
 ```
@@ -303,12 +303,12 @@ dn.get_user_schools(user_id=1000005000233)
 |-|-|
 |user_id|ID выбранного пользователя|
 
-- get_edu_groups - Список идентификаторов классов текущего пользователя
+- **get_edu_groups** - Список идентификаторов классов текущего пользователя
 ```python
 dn.get_edu_groups(user_id=1000005000233)
 ```
 
-- get_user_edu_groups - Список идентификаторов классов произвольного пользователя
+- **get_user_edu_groups** - Список идентификаторов классов произвольного пользователя
 ```python
 dn.get_user_schools(user_id=1000005000233)
 ```
@@ -316,7 +316,7 @@ dn.get_user_schools(user_id=1000005000233)
 |-|-|
 |user_id|ID выбранного пользователя|
 
-- get_memberships - Список участий в школах для текущего пользователя
+- **get_memberships** - Список участий в школах для текущего пользователя
 ```python
 dn.get_memberships()
 ```
