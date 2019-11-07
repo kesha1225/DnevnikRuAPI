@@ -27,7 +27,9 @@ class DiaryBase:
             },
         )
         if token.status_code != 200:
-            raise DiaryError("Сайт лежит или ведутся технические работы, использование api временно невозможно")
+            raise DiaryError(
+                "Сайт лежит или ведутся технические работы, использование api временно невозможно"
+            )
         token = token.json()
         if token.get("type") == "authorizationFailed":
             raise DiaryError(token["description"])
@@ -38,14 +40,26 @@ class DiaryBase:
     def _check_response(response):
         if response.headers.get("Content-Type") == "text/html":
             error_html = response.content.decode()
-            error_text = " ".join(word for word in error_html.split('<div class="error__description">')[-1].split("<p>")[1].strip()[:-4].split())
+            error_text = " ".join(
+                word
+                for word in error_html.split('<div class="error__description">')[-1]
+                .split("<p>")[1]
+                .strip()[:-4]
+                .split()
+            )
             raise DiaryError(error_text)
         json_response = response.json()
         if isinstance(json_response, dict):
             if json_response.get("type") == "parameterInvalid":
                 raise DiaryError(json_response["description"])
             elif json_response.get("type") == "apiServerError":
-                raise DiaryError("Неизвестная ошибка в API, проверьте правильность параметров")
+                raise DiaryError(
+                    "Неизвестная ошибка в API, проверьте правильность параметров"
+                )
+            elif json_response.get("type") == "apiUnknownError":
+                raise DiaryError(
+                    "Неизвестная ошибка в API, проверьте правильность параметров"
+                )
 
     def get(self, method: str, params=None, **kwargs):
         if params is None:
@@ -101,6 +115,14 @@ class DiaryAPI:
     def get_context(self):
         context = self.api.get(f"users/me/context")
         return context
+
+    def get_organizations(self):
+        organizations = self.api.get(f"users/me/organizations")
+        return organizations
+
+    def get_organization_info(self, organization_id: int):
+        organization_info = self.api.get(f"users/me/organizations/{organization_id}")
+        return organization_info
 
     def get_user_context(self, user_id: int):
         #  TODO: check strange response
@@ -346,9 +368,7 @@ class DiaryAPI:
         return lesson_info
 
     def get_many_lessons_info(self, lessons_list: list):
-        lesson_info = self.api.post(
-            f"lessons/many", data={"lessons": lessons_list}
-        )
+        lesson_info = self.api.post(f"lessons/many", data={"lessons": lessons_list})
         return lesson_info
 
     def get_group_lessons_info(
@@ -396,9 +416,7 @@ class DiaryAPI:
         start_time: datetime.datetime = datetime.datetime.now(),
         end_time: datetime.datetime = datetime.datetime.now(),
     ):
-        marks = self.api.get(
-            f"edu-groups/{group_id}/marks/{start_time}/{end_time}"
-        )
+        marks = self.api.get(f"edu-groups/{group_id}/marks/{start_time}/{end_time}")
         return marks
 
     def get_group_subject_marks(
@@ -445,7 +463,9 @@ class DiaryAPI:
         )
         return marks
 
-    def get_marks_by_date(self, person_id: int, date: datetime.datetime = datetime.datetime.now()):
+    def get_marks_by_date(
+        self, person_id: int, date: datetime.datetime = datetime.datetime.now()
+    ):
         marks = self.api.get(f"persons/{person_id}/marks/{date}")
         return marks
 
@@ -456,6 +476,48 @@ class DiaryAPI:
     def get_marks_values_by_type(self, marks_type: str):
         marks_values = self.api.get(f"marks/values/type/{marks_type}")
         return marks_values
+
+    def get_person_average_marks(self, person: int, period: int):
+        marks = self.api.get(f"persons/{person}/reporting-periods/{period}/avg-mark")
+        return marks
+
+    def get_person_average_marks_by_subject(
+        self, person_id: int, period: int, subject_id: int
+    ):
+        marks = self.api.get(
+            f"persons/{person_id}/reporting-periods/{period}/subjects/{subject_id}/avg-mark"
+        )
+        return marks
+
+    def get_group_average_marks_by_date(
+        self,
+        group_id: int,
+        period: int,
+        date: datetime.datetime = datetime.datetime.now(),
+    ):
+        marks = self.api.get(
+            f"edu-groups/{group_id}/reporting-periods/{period}/avg-marks/{date}"
+        )
+        return marks
+
+    def get_group_average_marks_by_time(
+        self,
+        group_id: int,
+        start_time: datetime.datetime = datetime.datetime.now(),
+        end_time: datetime.datetime = datetime.datetime.now(),
+    ):
+        marks = self.api.get(f"edu-groups/{group_id}/avg-marks/{start_time}/{end_time}")
+        return marks
+
+    def get_final_group_marks(self, group_id: int):
+        marks = self.api.get(f"edu-group/{group_id}/criteria-marks-totals")
+        return marks
+
+    def get_final_group_marks_by_subject(self, group_id: int, subject_id: int):
+        marks = self.api.get(
+            f"edu-group/{group_id}/subject/{subject_id}/criteria-marks-totals"
+        )
+        return marks
 
     def get_group_persons(self, group_id: int):
         persons = self.api.get(f"persons", params={"eduGroup": group_id})
@@ -489,11 +551,11 @@ class DiaryAPI:
         return person_schedule
 
     def get_best_schools(
-        self, start_time: datetime.datetime = datetime.datetime.now(), end_time: datetime.datetime = datetime.datetime.now()
+        self,
+        start_time: datetime.datetime = datetime.datetime.now(),
+        end_time: datetime.datetime = datetime.datetime.now(),
     ):
-        best_schools = self.api.get(
-            f"school-rating/from/{start_time}/to/{end_time}"
-        )
+        best_schools = self.api.get(f"school-rating/from/{start_time}/to/{end_time}")
         return best_schools
 
     def get_school_profile(self, school_id: int):
@@ -501,9 +563,7 @@ class DiaryAPI:
         return school_profile
 
     def get_schools_profiles(self, schools_ids: list):
-        school_profiles = self.api.get(
-            f"schools", params={"schools": schools_ids}
-        )
+        school_profiles = self.api.get(f"schools", params={"schools": schools_ids})
         return school_profiles
 
     def get_my_schools(self):
@@ -671,3 +731,7 @@ class DiaryAPI:
     def get_work_types(self, school_id: int):
         work_types = self.api.get(f"work-types/{school_id}")
         return work_types
+
+    def invite_to_event(self, invite_id: int):
+        response = self.api.post(f"events/{invite_id}/invite ")
+        return response

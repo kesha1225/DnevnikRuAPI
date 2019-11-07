@@ -20,20 +20,22 @@ class AsyncDiaryBase:
                 "username": self.login,
                 "password": self.password,
                 "scope": "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar,"
-                         "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
-                         "Files,Wall,Messages",
+                "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
+                "Files,Wall,Messages",
             },
         )
         if token_info.status != 200:
             await self.session.close()
-            raise DiaryError("Сайт лежит или ведутся технические работы, использование api временно невозможно")
+            raise DiaryError(
+                "Сайт лежит или ведутся технические работы, использование api временно невозможно"
+            )
         token = await token_info.json()
         if token.get("type") == "authorizationFailed":
             await self.close_session()
             raise DiaryError(token["description"])
         else:
-            self.token = token['accessToken']
-            return token['accessToken']
+            self.token = token["accessToken"]
+            return token["accessToken"]
 
     async def close_session(self):
         await self.session.close()
@@ -42,16 +44,29 @@ class AsyncDiaryBase:
         if response.content_type == "text/html":
             await self.close_session()
             error_html = await response.text()
-            error_text = " ".join(word for word in error_html.split('<div class="error__description">')[-1].split("<p>")[1].strip()[:-4].split())
+            error_text = " ".join(
+                word
+                for word in error_html.split('<div class="error__description">')[-1]
+                .split("<p>")[1]
+                .strip()[:-4]
+                .split()
+            )
             raise DiaryError(error_text)
         json_response = await response.json()
         if isinstance(json_response, dict):
             if json_response.get("type") == "apiUnknownError":
                 await self.close_session()
-                raise DiaryError("Незвестная ошибка API, проверьте правильность параметров")
+                raise DiaryError(
+                    "Незвестная ошибка API, проверьте правильность параметров"
+                )
+            elif json_response.get("type") == "apiServerError":
+                await self.close_session()
+                raise DiaryError(
+                    "Неизвестная ошибка в API, проверьте правильность параметров"
+                )
             elif json_response.get("type") == "parameterInvalid":
                 await self.close_session()
-                raise DiaryError(json_response['description'])
+                raise DiaryError(json_response["description"])
         elif isinstance(json_response, list):
             # TODO strange list response errors
             pass
@@ -59,8 +74,12 @@ class AsyncDiaryBase:
     async def get(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        async with self.session.get(self.host + method, params=params, headers={'Access-Token': self.token},
-                                    **kwargs) as response:
+        async with self.session.get(
+            self.host + method,
+            params=params,
+            headers={"Access-Token": self.token},
+            **kwargs,
+        ) as response:
             await self._check_response(response)
             json_response = await response.json()
         return json_response
@@ -68,8 +87,12 @@ class AsyncDiaryBase:
     async def post(self, method: str, data=None, **kwargs):
         if data is None:
             data = {}
-        async with self.session.post(self.host + method, data=data, headers={'Access-Token': self.token},
-                                     **kwargs) as response:
+        async with self.session.post(
+            self.host + method,
+            data=data,
+            headers={"Access-Token": self.token},
+            **kwargs,
+        ) as response:
             await self._check_response(response)
             json_response = await response.json()
         return json_response
@@ -78,8 +101,12 @@ class AsyncDiaryBase:
         if params is None:
             params = {}
 
-        async with self.session.delete(self.host + method, params=params, headers={'Access-Token': self.token},
-                                       **kwargs) as response:
+        async with self.session.delete(
+            self.host + method,
+            params=params,
+            headers={"Access-Token": self.token},
+            **kwargs,
+        ) as response:
             await self._check_response(response)
             json_response = await response.json()
         return json_response
@@ -88,8 +115,12 @@ class AsyncDiaryBase:
         if params is None:
             params = {}
 
-        async with self.session.put(self.host + method, data=params, headers={'Access-Token': self.token},
-                                    **kwargs) as response:
+        async with self.session.put(
+            self.host + method,
+            data=params,
+            headers={"Access-Token": self.token},
+            **kwargs,
+        ) as response:
             await self._check_response(response)
             json_response = await response.json()
         return json_response
@@ -117,6 +148,16 @@ class DiaryAPI:
     async def get_context(self):
         context = await self.api.get(f"users/me/context")
         return context
+
+    async def get_organizations(self):
+        organizations = await self.api.get(f"users/me/organizations")
+        return organizations
+
+    async def get_organization_info(self, organization_id: int):
+        organization_info = await self.api.get(
+            f"users/me/organizations/{organization_id}"
+        )
+        return organization_info
 
     async def get_user_context(self, user_id: int):
         #  TODO: check strange response
@@ -223,10 +264,10 @@ class DiaryAPI:
         return user_friends
 
     async def get_school_homework(
-            self,
-            school_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        school_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         homework = await self.api.get(
             f"users/me/school/{school_id}/homeworks",
@@ -241,11 +282,11 @@ class DiaryAPI:
         return homework
 
     async def get_person_homework(
-            self,
-            school_id: int,
-            person_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        school_id: int,
+        person_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         homework = await self.api.get(
             f"persons/{person_id}/school/{school_id}/homeworks",
@@ -283,7 +324,9 @@ class DiaryAPI:
         )
         return lesson_log
 
-    async def put_lesson_log(self, lesson_id: int, person_id: int, lesson_log_entry: str):
+    async def put_lesson_log(
+        self, lesson_id: int, person_id: int, lesson_log_entry: str
+    ):
         """
                 lesson_log_entry example:
                 {
@@ -316,11 +359,11 @@ class DiaryAPI:
         return lesson_logs
 
     async def get_group_lesson_log(
-            self,
-            group_id: int,
-            subject_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        group_id: int,
+        subject_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         lesson_logs = await self.api.get(
             f"lesson-log-entries/group/{group_id}",
@@ -329,11 +372,11 @@ class DiaryAPI:
         return lesson_logs
 
     async def get_person_subject_lesson_log(
-            self,
-            person_id: int,
-            subject_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        person_id: int,
+        subject_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         lesson_logs = await self.api.get(
             f"lesson-log-entries/person/{person_id}/subject/{subject_id}",
@@ -342,10 +385,10 @@ class DiaryAPI:
         return lesson_logs
 
     async def get_person_lesson_logs(
-            self,
-            person_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        person_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         lesson_logs = await self.api.get(
             f"persons/{person_id}/lesson-log-entries",
@@ -368,10 +411,10 @@ class DiaryAPI:
         return lesson_info
 
     async def get_group_lessons_info(
-            self,
-            group_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        group_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         lessons_info = await self.api.get(
             f"edu-groups/{group_id}/lessons/{start_time}/{end_time}"
@@ -383,7 +426,7 @@ class DiaryAPI:
         return marks_histogram
 
     async def get_subject_marks_histogram(
-            self, group_id: int, period_id: int, subject_id: int
+        self, group_id: int, period_id: int, subject_id: int
     ):
         marks_histogram = await self.api.get(
             f"periods/{period_id}/subjects/{subject_id}/groups/{group_id}/marks/histogram"
@@ -407,10 +450,10 @@ class DiaryAPI:
         return marks
 
     async def get_group_marks_period(
-            self,
-            group_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        group_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         marks = await self.api.get(
             f"edu-groups/{group_id}/marks/{start_time}/{end_time}"
@@ -418,11 +461,11 @@ class DiaryAPI:
         return marks
 
     async def get_group_subject_marks(
-            self,
-            group_id: int,
-            subject_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        group_id: int,
+        subject_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         marks = await self.api.get(
             f"edu-groups/{group_id}/subjects/{subject_id}/marks/{start_time}/{end_time}"
@@ -430,11 +473,11 @@ class DiaryAPI:
         return marks
 
     async def get_person_marks(
-            self,
-            person_id: int,
-            school_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        person_id: int,
+        school_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         marks = await self.api.get(
             f"persons/{person_id}/schools/{school_id}/marks/{start_time}/{end_time}"
@@ -450,11 +493,11 @@ class DiaryAPI:
         return marks
 
     async def get_person_subject_marks(
-            self,
-            person_id: int,
-            subject_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        person_id: int,
+        subject_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         marks = await self.api.get(
             f"persons/{person_id}/subjects/{subject_id}/marks/{start_time}/{end_time}"
@@ -472,6 +515,52 @@ class DiaryAPI:
     async def get_marks_values_by_type(self, marks_type: str):
         marks_values = await self.api.get(f"marks/values/type/{marks_type}")
         return marks_values
+
+    async def get_person_average_marks(self, person: int, period: int):
+        marks = await self.api.get(
+            f"persons/{person}/reporting-periods/{period}/avg-mark"
+        )
+        return marks
+
+    async def get_person_average_marks_by_subject(
+        self, person_id: int, period: int, subject_id: int
+    ):
+        marks = await self.api.get(
+            f"persons/{person_id}/reporting-periods/{period}/subjects/{subject_id}/avg-mark"
+        )
+        return marks
+
+    async def get_group_average_marks_by_date(
+        self,
+        group_id: int,
+        period: int,
+        date: datetime.datetime = datetime.datetime.now(),
+    ):
+        marks = await self.api.get(
+            f"edu-groups/{group_id}/reporting-periods/{period}/avg-marks/{date}"
+        )
+        return marks
+
+    async def get_group_average_marks_by_time(
+        self,
+        group_id: int,
+        start_time: datetime.datetime = datetime.datetime.now(),
+        end_time: datetime.datetime = datetime.datetime.now(),
+    ):
+        marks = await self.api.get(
+            f"edu-groups/{group_id}/avg-marks/{start_time}/{end_time}"
+        )
+        return marks
+
+    async def get_final_group_marks(self, group_id: int):
+        marks = await self.api.get(f"edu-group/{group_id}/criteria-marks-totals")
+        return marks
+
+    async def get_final_group_marks_by_subject(self, group_id: int, subject_id: int):
+        marks = await self.api.get(
+            f"edu-group/{group_id}/subject/{subject_id}/criteria-marks-totals"
+        )
+        return marks
 
     async def get_group_persons(self, group_id: int):
         persons = await self.api.get(f"persons", params={"eduGroup": group_id})
@@ -492,11 +581,11 @@ class DiaryAPI:
         return group_reports
 
     async def get_person_schedule(
-            self,
-            person_id,
-            group_id,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        person_id,
+        group_id,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         person_schedule = await self.api.get(
             f"https://api.dnevnik.ru/v2.0/persons/{person_id}/groups/{group_id}/schedules",
@@ -505,7 +594,9 @@ class DiaryAPI:
         return person_schedule
 
     async def get_best_schools(
-            self, start_time: str = str(datetime.datetime.now()), end_time: str = str(datetime.datetime.now())
+        self,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         best_schools = await self.api.get(
             f"school-rating/from/{start_time}/to/{end_time}"
@@ -555,11 +646,11 @@ class DiaryAPI:
         return lesson_task
 
     async def get_person_tasks(
-            self,
-            person_id: int,
-            subject_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        person_id: int,
+        subject_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         person_subject_tasks = await self.api.get(
             f"persons/{person_id}/tasks",
@@ -622,10 +713,10 @@ class DiaryAPI:
         return user_roles
 
     async def get_group_average_marks(
-            self,
-            group_id: int,
-            start_time: str = str(datetime.datetime.now()),
-            end_time: str = str(datetime.datetime.now()),
+        self,
+        group_id: int,
+        start_time: str = str(datetime.datetime.now()),
+        end_time: str = str(datetime.datetime.now()),
     ):
         weighted_group_average_marks = await self.api.get(
             f"edu-groups/{group_id}/wa-marks/{start_time}/{end_time}"
@@ -687,3 +778,7 @@ class DiaryAPI:
     async def get_work_types(self, school_id: int):
         work_types = await self.api.get(f"work-types/{school_id}")
         return work_types
+
+    async def invite_to_event(self, invite_id: int):
+        response = await self.api.post(f"events/{invite_id}/invite ")
+        return response
