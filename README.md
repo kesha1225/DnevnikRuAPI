@@ -17,7 +17,7 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 
 ## Пример синхронного использования
 
-Если у вас есть токен api используйте его так:
+#### Если у вас есть токен api используйте его так:
 ```python3
 from pydnevnikruapi import dnevnik
 from datetime import datetime
@@ -27,7 +27,7 @@ token = "fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ"
 dn = dnevnik.DiaryAPI(token=token)
 ```
 
-##### Получение домашнего задания на указанный период без токена.
+#### Получение домашнего задания на указанный период без токена.
 
 ```python3
 from pydnevnikruapi import dnevnik
@@ -48,7 +48,7 @@ print(dn.get_edu_groups())
 
 ## Пример асинхронного использования
 
-##### Получение домашнего задания на указанный период без токена.
+#### Получение домашнего задания на указанный период без токена.
 
 ```python3
 from pydnevnikruapi.async_ import dnevnik
@@ -86,8 +86,8 @@ if __name__ == '__main__':
     # Запускаем все наши функции в event loop
 ```
 
-##### Получение домашнего задания на указанный период с токеном
-.
+#### Получение домашнего задания на указанный период с токеном
+
 
 ```python3
 from pydnevnikruapi.async_ import dnevnik
