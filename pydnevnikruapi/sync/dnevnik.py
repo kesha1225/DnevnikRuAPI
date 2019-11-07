@@ -637,6 +637,14 @@ class DiaryAPI:
         user_groups = self.api.get(f"users/{user_id}/groups")
         return user_groups
 
+    def get_person_children(self, person_id: int):
+        person_children = self.api.get(f"user/{person_id}/children")
+        return person_children
+
+    def get_user_children(self, user_id: int):
+        children = self.api.get(f"user/{user_id}/children")
+        return children
+
     def get_children(self):
         my_children = self.api.get(f"users/me/children")
         return my_children
