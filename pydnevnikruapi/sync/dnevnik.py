@@ -28,30 +28,44 @@ class DiaryBase:
         else:
             return token["accessToken"]
 
+    @staticmethod
+    def _check_response(response):
+        if response.headers.get("Content-Type") != "application/json":
+            raise DiaryError("Ошибка в API, проверьте правильность параметров")
+        json_response = response.json()
+        if isinstance(json_response, dict):
+            if json_response.get("type") == "parameterInvalid":
+                raise DiaryError(json_response["description"])
+            elif json_response.get("type") == "apiServerError":
+                raise DiaryError("Неизвестная ошибка в API, проверьте правильность параметров")
+
     def get(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.get(self.host + method, params=params, **kwargs)
-        return request.json()
+        response = self.session.get(self.host + method, params=params, **kwargs)
+        self._check_response(response)
+        return response.json()
 
-    def post(self, method: str, params=None, **kwargs):
-        if params is None:
-            params = {}
-        request = self.session.post(self.host + method, data=params, **kwargs)
-        print(type(request))
-        return request.json()
+    def post(self, method: str, data=None, **kwargs):
+        if data is None:
+            data = {}
+        response = self.session.post(self.host + method, data=data, **kwargs)
+        self._check_response(response)
+        return response.json()
 
     def delete(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.delete(self.host + method, params=params, **kwargs)
-        return request.json()
+        response = self.session.delete(self.host + method, params=params, **kwargs)
+        self._check_response(response)
+        return response.json()
 
     def put(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.put(self.host + method, data=params, **kwargs)
-        return request.json()
+        response = self.session.put(self.host + method, data=params, **kwargs)
+        self._check_response(response)
+        return response.json()
 
 
 class DiaryAPI:
