@@ -35,30 +35,60 @@ class AsyncDiaryBase:
     async def close_session(self):
         await self.session.close()
 
+    async def _check_response(self, response):
+        if response.content_type != "application/json":
+            await self.close_session()
+            raise DiaryError("502 Bad Gateway")
+        json_response = await response.json()
+        if isinstance(json_response, dict):
+            if json_response.get("type") == "apiUnknownError":
+                await self.close_session()
+                raise DiaryError("Незвестная ошибка API, проверьте правильность параметров")
+            elif json_response.get("type") == "parameterInvalid":
+                await self.close_session()
+                raise DiaryError(json_response['description'])
+        elif isinstance(json_response, list):
+            # TODO strange list response errors
+            pass
+
     async def get(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = await self.session.get(self.host + method, params=params, headers={'Access-Token': self.token},
-                                         **kwargs)
-        return await request.json()
 
-    async def post(self, method: str, params=None, **kwargs):
-        if params is None:
-            params = {}
-        request = self.session.post(self.host + method, data=params, headers={'Access-Token': self.token}, **kwargs)
-        return await request
+        async with self.session.get(self.host + method, params=params, headers={'Access-Token': self.token},
+                                    **kwargs) as response:
+            await self._check_response(response)
+            json_response = await response.json()
+        return json_response
+
+    async def post(self, method: str, data=None, **kwargs):
+        if data is None:
+            data = {}
+        async with self.session.post(self.host + method, data=data, headers={'Access-Token': self.token},
+                                     **kwargs) as response:
+            await self._check_response(response)
+            json_response = await response.json()
+        return json_response
 
     async def delete(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.delete(self.host + method, params=params, headers={'Access-Token': self.token}, **kwargs)
-        return request
+
+        async with self.session.delete(self.host + method, params=params, headers={'Access-Token': self.token},
+                                       **kwargs) as response:
+            await self._check_response(response)
+            json_response = await response.json()
+        return json_response
 
     async def put(self, method: str, params=None, **kwargs):
         if params is None:
             params = {}
-        request = self.session.put(self.host + method, data=params, headers={'Access-Token': self.token}, **kwargs)
-        return request
+
+        async with self.session.put(self.host + method, data=params, headers={'Access-Token': self.token},
+                                    **kwargs) as response:
+            await self._check_response(response)
+            json_response = await response.json()
+        return json_response
 
 
 class DiaryAPI:
