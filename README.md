@@ -17,21 +17,10 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 
 ## Пример синхронного использования
 
-#### Если у вас есть токен api используйте его так:
-```python3
-from pydnevnikruapi import dnevnik
-from datetime import datetime
-
-token = "fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ"
-
-dn = dnevnik.DiaryAPI(token=token)
-```
-
 #### Получение домашнего задания на указанный период без токена.
 
 ```python3
 from pydnevnikruapi import dnevnik
-from datetime import datetime
 
 login = "login"
 password = "password"
@@ -86,23 +75,66 @@ if __name__ == '__main__':
     # Запускаем все наши функции в event loop
 ```
 
-#### Получение домашнего задания на указанный период с токеном
+## Документация
+
+### Начало работы
+
+Импортируем библиотеку и получаем доступ к api с помощью токена или логина и пароля
+
+Синхронно без токена
+```python
+from pydnevnikruapi import dnevnik
+from datetime import datetime
+
+login = "login"
+password = "password"
+
+dn = dnevnik.DiaryAPI(login=login, password=password)
+```
+
+Синхронно с токеном
+```python
+from pydnevnikruapi import dnevnik
+from datetime import datetime
+
+token = "fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ"
+
+dn = dnevnik.DiaryAPI(token=token)
+```
+
+Асинхронно без токена
+```python3
+from pydnevnikruapi.async_ import dnevnik
+import asyncio
 
 
+async def get_token():
+    await dn.api.get_token()
+    # Получаем токен
+
+
+async def close_session():
+    await dn.api.close_session()
+    #  В конце использования закрываем сессию
+
+
+if __name__ == '__main__':
+    login = "login"
+    password = "password"
+    dn = dnevnik.DiaryAPI(login=login, password=password)
+    # Получаем доступ через логин и пароль
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(get_token())
+    loop.run_until_complete(close_session())
+    # Запускаем все наши функции в event loop
+```
+
+Асинхронно с токеном, **функция dn.api.get_token() нам не нужна**
 ```python3
 from pydnevnikruapi.async_ import dnevnik
 import asyncio
 from datetime import datetime
-
-
-async def get_dn_info():
-    homework = await dn.get_school_homework(1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15)))
-    #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
-    print(homework)
-
-    edu_groups = await dn.get_edu_groups()
-    #  Получение групп обучения текущего пользователя
-    print(edu_groups)
 
 
 async def close_session():
@@ -116,13 +148,20 @@ if __name__ == '__main__':
     # Получаем доступ через токен
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_dn_info())
     loop.run_until_complete(close_session())
     # Запускаем все наши функции в event loop
 ```
 
+### **Методы dnevnik.ru**
 
-## Документация
+### Authorities
+
+ - get_organizations - Список идентификаторов организаций текущего пользователя
+ ```python
+ dn.get_organizations()
+ ```
+
+
 [api.dnevnik.ru](https://api.dnevnik.ru/partners/swagger/ui/index#/)
 
 
