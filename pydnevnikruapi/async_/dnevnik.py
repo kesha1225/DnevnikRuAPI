@@ -38,7 +38,7 @@ class AsyncDiaryBase:
     async def _check_response(self, response):
         if response.content_type != "application/json":
             await self.close_session()
-            raise DiaryError("502 Bad Gateway")
+            raise DiaryError("Ошибка в API, проверьте правильность параметров")
         json_response = await response.json()
         if isinstance(json_response, dict):
             if json_response.get("type") == "apiUnknownError":
