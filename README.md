@@ -54,7 +54,9 @@ async def get_dn_info():
     await dn.api.get_token()
     #  Получаем токен для использования api
 
-    homework = await dn.get_school_homework(1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15)))
+    homework = await dn.get_school_homework(
+        1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
+    )
     #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
     print(homework)
 
@@ -66,9 +68,9 @@ async def get_dn_info():
 async def close_session():
     await dn.api.close_session()
     #  В конце использования закрываем сессию
-    
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     login = "login"
     password = "password"
     dn = dnevnik.AsyncDiaryAPI(login=login, password=password)
@@ -76,9 +78,10 @@ if __name__ == '__main__':
 
     loop = asyncio.get_event_loop()
     # Добавляем все наши функции в event loop через Task Manager
-    
+
     task_manager = TaskManager(loop)
     task_manager.add_task(get_dn_info)
-    task_manager.run(on_shutdown=close_session) 
+    task_manager.run(on_shutdown=close_session)
     # Закрываем сессию по завершению работы
+
 ```
