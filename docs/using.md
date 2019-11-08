@@ -6,7 +6,7 @@
 
 **Синхронно** без токена
 ```python
-from pydnevnikruapi import dnevnik
+from pydnevnikruapi.sync import dnevnik
 from datetime import datetime
 
 login = "login"
@@ -17,7 +17,7 @@ dn = dnevnik.DiaryAPI(login=login, password=password)
 
 **Синхронно** с токеном
 ```python
-from pydnevnikruapi import dnevnik
+from pydnevnikruapi.sync import dnevnik
 from datetime import datetime
 
 token = "fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ"
@@ -41,6 +41,12 @@ async def close_session():
     #  В конце использования закрываем сессию
 
 
+async def run():
+    #  Добавляем таски в event loop
+    await loop.create_task(get_token())
+    await loop.create_task(close_session())
+
+
 if __name__ == '__main__':
     login = "login"
     password = "password"
@@ -48,8 +54,7 @@ if __name__ == '__main__':
     # Получаем доступ через логин и пароль
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_token())
-    loop.run_until_complete(close_session())
+    loop.run_until_complete(run())
     # Запускаем все наши функции в event loop
 ```
 
@@ -63,6 +68,11 @@ from datetime import datetime
 async def close_session():
     await dn.api.close_session()
     #  В конце использования закрываем сессию
+    
+
+async def run():
+    #  Добавляем таски в event loop
+    await loop.create_task(close_session())
 
 
 if __name__ == '__main__':
@@ -71,6 +81,6 @@ if __name__ == '__main__':
     # Получаем доступ через токен
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(close_session())
+    loop.run_until_complete(run())
     # Запускаем все наши функции в event loop
 ```

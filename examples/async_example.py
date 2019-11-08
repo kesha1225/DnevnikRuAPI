@@ -15,9 +15,13 @@ async def close_session():
     await dn.api.close_session()
 
 
+async def run():
+    loop.create_task(get_dn_info())
+    loop.create_task(close_session())
+
+
 if __name__ == '__main__':
     dn = dnevnik.AsyncDiaryAPI("login", "password")
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_dn_info())
-    loop.run_until_complete(close_session())
+    loop.run_until_complete(run())

@@ -65,6 +65,12 @@ async def get_dn_info():
 async def close_session():
     await dn.api.close_session()
     #  В конце использования закрываем сессию
+    
+    
+async def run():
+    #  Добавляем таски в event loop
+    await loop.create_task(get_dn_info())
+    await loop.create_task(close_session())
 
 
 if __name__ == '__main__':
@@ -74,7 +80,6 @@ if __name__ == '__main__':
     # Получаем доступ через логин и пароль
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_dn_info())
-    loop.run_until_complete(close_session())
+    loop.run_until_complete(run())
     # Запускаем все наши функции в event loop
 ```
