@@ -36,7 +36,7 @@
     
     
       
-        <title>Methods documentation - DnevnikRuAPI</title>
+        <title>Документация по методам дневник.ру - DnevnikRuAPI</title>
       
     
     
@@ -103,7 +103,7 @@
             </span>
             <span class="md-header-nav__topic">
               
-                Methods documentation
+                Документация по методам дневник.ру
               
             </span>
           
@@ -214,8 +214,20 @@
 
 
   <li class="md-nav__item">
-    <a href=".." title="Start" class="md-nav__link">
-      Start
+    <a href=".." title="Начало" class="md-nav__link">
+      Начало
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../using/" title="Варианты использования" class="md-nav__link">
+      Варианты использования
     </a>
   </li>
 
@@ -233,11 +245,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Methods documentation
+        Документация по методам дневник.ру
       </label>
     
-    <a href="./" title="Methods documentation" class="md-nav__link md-nav__link--active">
-      Methods documentation
+    <a href="./" title="Документация по методам дневник.ру" class="md-nav__link md-nav__link--active">
+      Документация по методам дневник.ру
     </a>
     
       
@@ -252,19 +264,6 @@
   <a href="#_1" class="md-nav__link">
     Документация
   </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    Начало работы
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -371,19 +370,6 @@
     Документация
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    Начало работы
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -474,79 +460,10 @@
                   <a href="https://github.com/kesha1225/DnevnikRuAPI/edit/master/docs/methods.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                  <h1>Methods documentation</h1>
+                  <h1>Документация по методам дневник.ру</h1>
                 
                 <h2 id="_1">Документация</h2>
 <p><strong>Официальная документация на сайте</strong> - <a href="https://api.dnevnik.ru/partners/swagger/ui/index#/">api.dnevnik.ru</a></p>
-<h3 id="_2">Начало работы</h3>
-<p>Импортируем библиотеку и получаем доступ к api с помощью токена или логина и пароля</p>
-<p><strong>Синхронно</strong> без токена</p>
-<pre><code class="python">from pydnevnikruapi import dnevnik
-from datetime import datetime
-
-login = &quot;login&quot;
-password = &quot;password&quot;
-
-dn = dnevnik.DiaryAPI(login=login, password=password)
-</code></pre>
-
-<p><strong>Синхронно</strong> с токеном</p>
-<pre><code class="python">from pydnevnikruapi import dnevnik
-from datetime import datetime
-
-token = &quot;fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ&quot;
-
-dn = dnevnik.DiaryAPI(token=token)
-</code></pre>
-
-<p><strong>Асинхронно</strong> без токена</p>
-<pre><code class="python3">from pydnevnikruapi.async_ import dnevnik
-import asyncio
-
-
-async def get_token():
-    await dn.api.get_token()
-    # Получаем токен
-
-
-async def close_session():
-    await dn.api.close_session()
-    #  В конце использования закрываем сессию
-
-
-if __name__ == '__main__':
-    login = &quot;login&quot;
-    password = &quot;password&quot;
-    dn = dnevnik.DiaryAPI(login=login, password=password)
-    # Получаем доступ через логин и пароль
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_token())
-    loop.run_until_complete(close_session())
-    # Запускаем все наши функции в event loop
-</code></pre>
-
-<p><strong>Асинхронно</strong> с токеном, <em>функция dn.api.get_token() нам не нужна</em></p>
-<pre><code class="python3">from pydnevnikruapi.async_ import dnevnik
-import asyncio
-from datetime import datetime
-
-
-async def close_session():
-    await dn.api.close_session()
-    #  В конце использования закрываем сессию
-
-
-if __name__ == '__main__':
-    token = &quot;uqLp5xicTurpTEC8Xc4eup7R6U77bhl0&quot;
-    dn = dnevnik.DiaryAPI(token=token)
-    # Получаем доступ через токен
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(close_session())
-    # Запускаем все наши функции в event loop
-</code></pre>
-
 <h2 id="dnevnikru">Методы dnevnik.ru:</h2>
 <h3 id="authorities">Authorities</h3>
 <ul>
@@ -919,7 +836,7 @@ dn.get_group_average_marks_by_time(group_id=14455222, start_time=datetime.dateti
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="Start" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../using/" title="Варианты использования" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -928,7 +845,7 @@ dn.get_group_average_marks_by_time(group_id=14455222, start_time=datetime.dateti
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Start
+                Варианты использования
               </span>
             </div>
           </a>
