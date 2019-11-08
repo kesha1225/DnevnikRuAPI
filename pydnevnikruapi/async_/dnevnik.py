@@ -126,12 +126,15 @@ class AsyncDiaryBase:
         return json_response
 
 
-class DiaryAPI:
+class AsyncDiaryAPI:
     def __init__(self, login: str = None, password: str = None, token: str = None):
         if token is None:
             self.api = AsyncDiaryBase(login=login, password=password)
         else:
             self.api = AsyncDiaryBase(token=token)
+
+    async def get_token(self):
+        return self.api.token
 
     async def get_school(self):
         school_id = await self.api.get("schools/person-schools")

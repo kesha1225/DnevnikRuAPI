@@ -16,7 +16,7 @@ async def close_session():
 
 
 if __name__ == '__main__':
-    dn = dnevnik.DiaryAPI("login", "password")
+    dn = dnevnik.AsyncDiaryAPI("login", "password")
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(get_dn_info())

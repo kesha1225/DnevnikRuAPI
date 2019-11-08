@@ -59,7 +59,7 @@ async def close_session():
 if __name__ == '__main__':
     login = "login"
     password = "password"
-    dn = dnevnik.DiaryAPI(login=login, password=password)
+    dn = dnevnik.AsyncDiaryAPI(login=login, password=password)
     # Получаем доступ через логин и пароль
 
     loop = asyncio.get_event_loop()
