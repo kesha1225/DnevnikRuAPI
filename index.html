@@ -412,7 +412,8 @@
 
 <h2 id="_2">Пример синхронного использования</h2>
 <h4 id="_3">Получение домашнего задания на указанный период без токена.</h4>
-<pre><code class="python3">from pydnevnikruapi import dnevnik
+<pre><code class="python3">from pydnevnikruapi.sync import dnevnik
+from datetime import datetime
 
 login = &quot;login&quot;
 password = &quot;password&quot;
@@ -420,7 +421,9 @@ password = &quot;password&quot;
 
 dn = dnevnik.DiaryAPI(login=login, password=password)
 
-print(dn.get_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15)))
+print(
+    dn.get_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15))
+)
 #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
 
 print(dn.get_edu_groups())
@@ -438,7 +441,9 @@ async def get_dn_info():
     await dn.api.get_token()
     #  Получаем токен для использования api
 
-    homework = await dn.get_school_homework(1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15)))
+    homework = await dn.get_school_homework(
+        1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
+    )
     #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
     print(homework)
 
@@ -458,7 +463,7 @@ async def run():
     await loop.create_task(close_session())
 
 
-if __name__ == '__main__':
+if __name__ == &quot;__main__&quot;:
     login = &quot;login&quot;
     password = &quot;password&quot;
     dn = dnevnik.AsyncDiaryAPI(login=login, password=password)
@@ -467,6 +472,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
     # Запускаем все наши функции в event loop
+
 </code></pre>
                 
                   
