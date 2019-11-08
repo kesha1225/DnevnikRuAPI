@@ -45,6 +45,7 @@ print(dn.get_edu_groups())
 
 ```python3
 from pydnevnikruapi.async_ import dnevnik
+from pydnevnikruapi.async_.utils import TaskManager
 import asyncio
 from datetime import datetime
 
@@ -66,12 +67,6 @@ async def close_session():
     await dn.api.close_session()
     #  В конце использования закрываем сессию
     
-    
-async def run():
-    #  Добавляем таски в event loop
-    await loop.create_task(get_dn_info())
-    await loop.create_task(close_session())
-
 
 if __name__ == '__main__':
     login = "login"
@@ -80,6 +75,10 @@ if __name__ == '__main__':
     # Получаем доступ через логин и пароль
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run())
-    # Запускаем все наши функции в event loop
+    # Добавляем все наши функции в event loop через Task Manager
+    
+    task_manager = TaskManager(loop)
+    task_manager.add_task(get_dn_info)
+    task_manager.run(on_shutdown=close_session) 
+    # Закрываем сессию по завершению работы
 ```
