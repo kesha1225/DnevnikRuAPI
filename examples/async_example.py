@@ -16,8 +16,8 @@ async def close_session():
 
 
 async def run():
-    loop.create_task(get_dn_info())
-    loop.create_task(close_session())
+    await loop.create_task(get_dn_info())
+    await loop.create_task(close_session())
 
 
 if __name__ == '__main__':
