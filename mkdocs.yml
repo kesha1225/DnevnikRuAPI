@@ -1,0 +1,6 @@
+site_name: My Docs
+nav:
+    - Start: index.md
+    - Methods documentation: methods.md
+theme:
+  name: 'material'
