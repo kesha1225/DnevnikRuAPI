@@ -1,6 +1,9 @@
-site_name: My Docs
+site_name: DnevnikRuAPI
 nav:
     - Start: index.md
     - Methods documentation: methods.md
 theme:
   name: 'material'
+
+repo_name: 'kesha1225/DnevnikRuAPI'
+repo_url: 'https://github.com/kesha1225/DnevnikRuAPI'
