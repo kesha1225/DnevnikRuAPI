@@ -1,2 +1,2 @@
-class DiaryError(Exception):
+class AsyncDiaryError(Exception):
     pass

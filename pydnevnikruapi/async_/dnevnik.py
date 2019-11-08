@@ -1,5 +1,5 @@
 import aiohttp
-from pydnevnikruapi.async_.exceptions import DiaryError
+from pydnevnikruapi.async_.exceptions import AsyncDiaryError
 import datetime
 
 
@@ -24,15 +24,15 @@ class AsyncDiaryBase:
                 "Files,Wall,Messages",
             },
         )
-        if token_info.status != 200:
-            await self.session.close()
-            raise DiaryError(
+        if token_info.status in [500, 502]:
+            raise AsyncDiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
             )
         token = await token_info.json()
         if token.get("type") == "authorizationFailed":
-            await self.close_session()
-            raise DiaryError(token["description"])
+            raise AsyncDiaryError(token["description"])
+        elif token.get("type") == "maxAttempsExceeded":
+            raise AsyncDiaryError(token["description"])
         else:
             self.token = token["accessToken"]
             return token["accessToken"]
@@ -40,9 +40,9 @@ class AsyncDiaryBase:
     async def close_session(self):
         await self.session.close()
 
-    async def _check_response(self, response):
+    @staticmethod
+    async def _check_response(response):
         if response.content_type == "text/html":
-            await self.close_session()
             error_html = await response.text()
             error_text = " ".join(
                 word
@@ -51,22 +51,19 @@ class AsyncDiaryBase:
                 .strip()[:-4]
                 .split()
             )
-            raise DiaryError(error_text)
+            raise AsyncDiaryError(error_text)
         json_response = await response.json()
         if isinstance(json_response, dict):
             if json_response.get("type") == "apiUnknownError":
-                await self.close_session()
-                raise DiaryError(
+                raise AsyncDiaryError(
                     "Незвестная ошибка API, проверьте правильность параметров"
                 )
             elif json_response.get("type") == "apiServerError":
-                await self.close_session()
-                raise DiaryError(
+                raise AsyncDiaryError(
                     "Неизвестная ошибка в API, проверьте правильность параметров"
                 )
             elif json_response.get("type") == "parameterInvalid":
-                await self.close_session()
-                raise DiaryError(json_response["description"])
+                raise AsyncDiaryError(json_response["description"])
         elif isinstance(json_response, list):
             # TODO strange list response errors
             pass
