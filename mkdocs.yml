@@ -1,7 +1,8 @@
 site_name: DnevnikRuAPI
 nav:
-    - Start: index.md
-    - Methods documentation: methods.md
+    - Начало: index.md
+    - Варианты использования: using.md
+    - Документация по методам дневник.ру: methods.md
 theme:
   name: 'material'
 
