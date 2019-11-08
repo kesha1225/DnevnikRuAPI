@@ -13,7 +13,8 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 #### Получение домашнего задания на указанный период без токена.
 
 ```python3
-from pydnevnikruapi import dnevnik
+from pydnevnikruapi.sync import dnevnik
+from datetime import datetime
 
 login = "login"
 password = "password"
@@ -21,7 +22,9 @@ password = "password"
 
 dn = dnevnik.DiaryAPI(login=login, password=password)
 
-print(dn.get_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15)))
+print(
+    dn.get_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15))
+)
 #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
 
 print(dn.get_edu_groups())
@@ -34,7 +37,6 @@ print(dn.get_edu_groups())
 
 ```python3
 from pydnevnikruapi.async_ import dnevnik
-from pydnevnikruapi.async_.utils import TaskManager
 import asyncio
 from datetime import datetime
 
@@ -43,7 +45,9 @@ async def get_dn_info():
     await dn.api.get_token()
     #  Получаем токен для использования api
 
-    homework = await dn.get_school_homework(1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15)))
+    homework = await dn.get_school_homework(
+        1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
+    )
     #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
     print(homework)
 
@@ -55,19 +59,22 @@ async def get_dn_info():
 async def close_session():
     await dn.api.close_session()
     #  В конце использования закрываем сессию
-    
 
-if __name__ == '__main__':
+
+async def run():
+    #  Добавляем таски в event loop
+    await loop.create_task(get_dn_info())
+    await loop.create_task(close_session())
+
+
+if __name__ == "__main__":
     login = "login"
     password = "password"
     dn = dnevnik.AsyncDiaryAPI(login=login, password=password)
     # Получаем доступ через логин и пароль
 
     loop = asyncio.get_event_loop()
-    # Добавляем все наши функции в event loop через Task Manager
-    
-    task_manager = TaskManager(loop)
-    task_manager.add_task(get_dn_info)
-    task_manager.run(on_shutdown=close_session) 
-    # Закрываем сессию по завершению работы
+    loop.run_until_complete(run())
+    # Запускаем все наши функции в event loop
+
 ```
