@@ -75,6 +75,10 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
+      <a href="#_1" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
@@ -172,9 +176,76 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Start
+      </label>
+    
     <a href="." title="Start" class="md-nav__link md-nav__link--active">
       Start
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    Установка
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    Пример синхронного использования
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    Получение домашнего задания на указанный период без токена.
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    Пример асинхронного использования
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    Получение домашнего задания на указанный период без токена.
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -198,6 +269,75 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    Установка
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    Пример синхронного использования
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    Получение домашнего задания на указанный период без токена.
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    Пример асинхронного использования
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    Получение домашнего задания на указанный период без токена.
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
@@ -206,20 +346,14 @@
                 
                 <h1 align="center">  api.dnevnik.ru wrapper </h1>
 
-<p align="center">Упрощение работы с api всероссийского электронного дневника как с токеном, так и без него.
+<p align="center">Упрощение работы с api всероссийского электронного дневника как с токеном, так и без него.</p>
 
-## Установка
-
-
+<h2 id="_1">Установка</h2>
 <pre><code class="sh">pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgrade
 </code></pre>
 
-
-## Пример синхронного использования
-
-#### Получение домашнего задания на указанный период без токена.
-
-
+<h2 id="_2">Пример синхронного использования</h2>
+<h4 id="_3">Получение домашнего задания на указанный период без токена.</h4>
 <pre><code class="python3">from pydnevnikruapi import dnevnik
 
 login = &quot;login&quot;
@@ -235,12 +369,8 @@ print(dn.get_edu_groups())
 #  Получение групп обучения текущего пользователя
 </code></pre>
 
-
-## Пример асинхронного использования
-
-#### Получение домашнего задания на указанный период без токена.
-
-
+<h2 id="_4">Пример асинхронного использования</h2>
+<h4 id="_5">Получение домашнего задания на указанный период без токена.</h4>
 <pre><code class="python3">from pydnevnikruapi.async_ import dnevnik
 import asyncio
 from datetime import datetime
