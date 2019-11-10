@@ -24,7 +24,8 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 #### Получение домашнего задания на указанный период без токена.
 
 ```python3
-from pydnevnikruapi import dnevnik
+from pydnevnikruapi.sync import dnevnik
+from datetime import datetime
 
 login = "login"
 password = "password"
