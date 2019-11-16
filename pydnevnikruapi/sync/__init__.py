@@ -1,1 +1,1 @@
-from pydnevnikruapi.async_.dnevnik import *
+from pydnevnikruapi.sync.dnevnik import *
