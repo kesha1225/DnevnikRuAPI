@@ -26,15 +26,15 @@ class DiaryBase:
                 "Files,Wall,Messages",
             },
         )
-        token = token.json()
-        if token.get("type") == "authorizationFailed":
-            raise DiaryError(token["description"])
+        json_token = token.json()
+        if json_token.get("type") == "authorizationFailed":
+            raise DiaryError(json_token["description"])
         elif token.status_code != 200:
             raise DiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
             )
         else:
-            return token["accessToken"]
+            return json_token["accessToken"]
 
     @staticmethod
     def _check_response(response):
