@@ -26,13 +26,13 @@ class DiaryBase:
                 "Files,Wall,Messages",
             },
         )
-        if token.status_code != 200:
-            raise DiaryError(
-                "Сайт лежит или ведутся технические работы, использование api временно невозможно"
-            )
         token = token.json()
         if token.get("type") == "authorizationFailed":
             raise DiaryError(token["description"])
+        elif token.status_code != 200:
+            raise DiaryError(
+                "Сайт лежит или ведутся технические работы, использование api временно невозможно"
+            )
         else:
             return token["accessToken"]
 
