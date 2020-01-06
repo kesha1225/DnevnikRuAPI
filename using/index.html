@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -332,7 +332,7 @@
 <h3 id="_2">Начало работы</h3>
 <p>Импортируем библиотеку и получаем доступ к api с помощью токена или логина и пароля</p>
 <p><strong>Синхронно</strong> без токена</p>
-<pre><code class="python">from pydnevnikruapi.sync import dnevnik
+<pre><code class="python">from pydnevnikruapi.dnevnik import dnevnik
 
 login = &quot;login&quot;
 password = &quot;password&quot;
@@ -341,7 +341,7 @@ dn = dnevnik.DiaryAPI(login=login, password=password)
 </code></pre>
 
 <p><strong>Синхронно</strong> с токеном</p>
-<pre><code class="python">from pydnevnikruapi.sync import dnevnik
+<pre><code class="python">from pydnevnikruapi.dnevnik import dnevnik
 
 token = &quot;fuLNdxicTuDpfEC8Xc4eu57RTU67vAjJ&quot;
 
@@ -349,15 +349,9 @@ dn = dnevnik.DiaryAPI(token=token)
 </code></pre>
 
 <p><strong>Асинхронно</strong> без токена</p>
-<pre><code class="python3">from pydnevnikruapi.async_ import dnevnik
-from pydnevnikruapi.async_.utils import TaskManager
+<pre><code class="python3">from pydnevnikruapi.aiodnevnik import dnevnik
+from pydnevnikruapi.aiodnevnik.utils import TaskManager
 import asyncio
-
-
-async def get_token():
-    await dn.api.get_token()
-    # Получаем токен
-
 
 async def close_session():
     await dn.api.close_session()
@@ -374,15 +368,14 @@ if __name__ == &quot;__main__&quot;:
     # Добавляем все наши функции в event loop через Task Manager
 
     task_manager = TaskManager(loop)
-    task_manager.add_task(get_token)
     task_manager.run(on_shutdown=close_session)
     # Закрываем сессию по завершению работы
 
 </code></pre>
 
-<p><strong>Асинхронно</strong> с токеном, <em>функция dn.api.get_token() нам не нужна</em></p>
-<pre><code class="python3">from pydnevnikruapi.async_ import dnevnik
-from pydnevnikruapi.async_.utils import TaskManager
+<p><strong>Асинхронно</strong> с токеном</p>
+<pre><code class="python3">from pydnevnikruapi.aiodnevnik import dnevnik
+from pydnevnikruapi.aiodnevnik.utils import TaskManager
 import asyncio
 
 
@@ -392,7 +385,7 @@ async def do_something():
 
 
 async def close_session():
-    await dn.api.close_session()
+    await dn.close_session()
     #  В конце использования закрываем сессию
 
 
@@ -412,6 +405,7 @@ if __name__ == &quot;__main__&quot;:
 </code></pre>
                 
                   
+                
                 
               
               
@@ -479,7 +473,7 @@ if __name__ == &quot;__main__&quot;:
       
     </div>
     
-      <script src="../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
       

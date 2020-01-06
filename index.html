@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="assets/javascripts/modernizr.74668098.js"></script>
+      <script src="assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -412,7 +412,7 @@
 
 <h2 id="_2">Пример синхронного использования</h2>
 <h4 id="_3">Получение домашнего задания на указанный период без токена.</h4>
-<pre><code class="python3">from pydnevnikruapi.sync import dnevnik
+<pre><code class="python3">from pydnevnikruapi.dnevnik import dnevnik
 from datetime import datetime
 
 login = &quot;login&quot;
@@ -432,15 +432,13 @@ print(dn.get_edu_groups())
 
 <h2 id="_4">Пример асинхронного использования</h2>
 <h4 id="_5">Получение домашнего задания на указанный период без токена.</h4>
-<pre><code class="python3">from pydnevnikruapi.async_ import dnevnik
+<pre><code class="python3">from pydnevnikruapi.aiodnevnik import dnevnik
+from pydnevnikruapi.aiodnevnik.utils import TaskManager
 import asyncio
 from datetime import datetime
 
 
 async def get_dn_info():
-    await dn.api.get_token()
-    #  Получаем токен для использования api
-
     homework = await dn.get_school_homework(
         1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
     )
@@ -453,14 +451,8 @@ async def get_dn_info():
 
 
 async def close_session():
-    await dn.api.close_session()
+    await dn.close_session()
     #  В конце использования закрываем сессию
-
-
-async def run():
-    #  Добавляем таски в event loop
-    await loop.create_task(get_dn_info())
-    await loop.create_task(close_session())
 
 
 if __name__ == &quot;__main__&quot;:
@@ -470,12 +462,17 @@ if __name__ == &quot;__main__&quot;:
     # Получаем доступ через логин и пароль
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run())
-    # Запускаем все наши функции в event loop
+    # Добавляем все наши функции в event loop через Task Manager
+
+    task_manager = TaskManager(loop)
+    task_manager.add_task(get_dn_info)
+    task_manager.run(on_shutdown=close_session)
+    # Закрываем сессию по завершению работы
 
 </code></pre>
                 
                   
+                
                 
               
               
@@ -529,7 +526,7 @@ if __name__ == &quot;__main__&quot;:
       
     </div>
     
-      <script src="assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"."}})</script>
       
