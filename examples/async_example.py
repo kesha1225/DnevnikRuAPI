@@ -1,11 +1,10 @@
-from pydnevnikruapi.async_ import dnevnik
+from pydnevnikruapi.aiodnevnik import dnevnik
 import asyncio
 from datetime import datetime
-from pydnevnikruapi.async_.utils import TaskManager
+from pydnevnikruapi.aiodnevnik.utils import TaskManager
 
 
 async def get_dn_info():
-    await dn.api.get_token()
     homework = await dn.get_school_homework(
         1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
     )
@@ -15,7 +14,7 @@ async def get_dn_info():
 
 
 async def close_session():
-    await dn.api.close_session()
+    await dn.close_session()
 
 
 if __name__ == "__main__":

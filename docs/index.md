@@ -13,7 +13,7 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 #### Получение домашнего задания на указанный период без токена.
 
 ```python3
-from pydnevnikruapi.sync import dnevnik
+from pydnevnikruapi.dnevnik import dnevnik
 from datetime import datetime
 
 login = "login"
@@ -36,16 +36,13 @@ print(dn.get_edu_groups())
 #### Получение домашнего задания на указанный период без токена.
 
 ```python3
-from pydnevnikruapi.async_ import dnevnik
-from pydnevnikruapi.async_.utils import TaskManager
+from pydnevnikruapi.aiodnevnik import dnevnik
+from pydnevnikruapi.aiodnevnik.utils import TaskManager
 import asyncio
 from datetime import datetime
 
 
 async def get_dn_info():
-    await dn.api.get_token()
-    #  Получаем токен для использования api
-
     homework = await dn.get_school_homework(
         1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
     )
@@ -58,7 +55,7 @@ async def get_dn_info():
 
 
 async def close_session():
-    await dn.api.close_session()
+    await dn.close_session()
     #  В конце использования закрываем сессию
 
 
