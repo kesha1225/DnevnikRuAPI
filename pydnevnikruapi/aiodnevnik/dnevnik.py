@@ -127,6 +127,12 @@ class AsyncDiaryBase:
             json_response = await response.json()
         return json_response
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close_session()
+
 
 class AsyncDiaryAPI(AsyncDiaryBase):
     def __init__(self, login: str = None, password: str = None, token: str = None):
@@ -156,9 +162,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return organizations
 
     async def get_organization_info(self, organization_id: int):
-        organization_info = await self.get(
-            f"users/me/organizations/{organization_id}"
-        )
+        organization_info = await self.get(f"users/me/organizations/{organization_id}")
         return organization_info
 
     async def get_user_context(self, user_id: int):
@@ -407,9 +411,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return lesson_info
 
     async def get_many_lessons_info(self, lessons_list: list):
-        lesson_info = await self.post(
-            f"lessons/many", data={"lessons": lessons_list}
-        )
+        lesson_info = await self.post(f"lessons/many", data={"lessons": lessons_list})
         return lesson_info
 
     async def get_group_lessons_info(
@@ -457,9 +459,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         start_time: str = str(datetime.datetime.now()),
         end_time: str = str(datetime.datetime.now()),
     ):
-        marks = await self.get(
-            f"edu-groups/{group_id}/marks/{start_time}/{end_time}"
-        )
+        marks = await self.get(f"edu-groups/{group_id}/marks/{start_time}/{end_time}")
         return marks
 
     async def get_group_subject_marks(
@@ -519,9 +519,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return marks_values
 
     async def get_person_average_marks(self, person: int, period: int):
-        marks = await self.get(
-            f"persons/{person}/reporting-periods/{period}/avg-mark"
-        )
+        marks = await self.get(f"persons/{person}/reporting-periods/{period}/avg-mark")
         return marks
 
     async def get_person_average_marks_by_subject(
@@ -600,9 +598,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         start_time: str = str(datetime.datetime.now()),
         end_time: str = str(datetime.datetime.now()),
     ):
-        best_schools = await self.get(
-            f"school-rating/from/{start_time}/to/{end_time}"
-        )
+        best_schools = await self.get(f"school-rating/from/{start_time}/to/{end_time}")
         return best_schools
 
     async def get_school_profile(self, school_id: int):
@@ -610,9 +606,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return school_profile
 
     async def get_schools_profiles(self, schools_ids: list):
-        school_profiles = await self.get(
-            f"schools", params={"schools": schools_ids}
-        )
+        school_profiles = await self.get(f"schools", params={"schools": schools_ids})
         return school_profiles
 
     async def get_my_schools(self):
@@ -677,8 +671,8 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return group_timetable
 
     async def get_feed(self):
-        my_feed = self.get(
-            f"users/me/feed", params={"date": datetime.datetime.now()}
+        my_feed = await self.get(
+            f"users/me/feed", params={"date": str(datetime.datetime.now())}
         )
         return my_feed
 

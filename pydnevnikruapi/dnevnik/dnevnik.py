@@ -88,6 +88,12 @@ class DiaryBase:
         self._check_response(response)
         return response.json()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.session.close()
+
 
 class DiaryAPI(DiaryBase):
     def __init__(self, login: str = None, password: str = None, token: str = None):
@@ -161,9 +167,7 @@ class DiaryAPI(DiaryBase):
         return edu_group_info
 
     def get_groups_info(self, edu_groups_list: list):
-        edu_groups_info = self.get(
-            f"edu-groups", params={"eduGroups": edu_groups_list}
-        )
+        edu_groups_info = self.get(f"edu-groups", params={"eduGroups": edu_groups_list})
         return edu_groups_info
 
     def get_school_groups(self, school_id: int):
@@ -305,9 +309,7 @@ class DiaryAPI(DiaryBase):
         return lesson_log
 
     def get_lesson_logs(self, lessons_ids: list):
-        lesson_logs = self.get(
-            f"lesson-log-entries", params={"lessons": lessons_ids}
-        )
+        lesson_logs = self.get(f"lesson-log-entries", params={"lessons": lessons_ids})
         return lesson_logs
 
     def get_person_lesson_log(self, person_id: int, lesson_id: int):
@@ -623,9 +625,7 @@ class DiaryAPI(DiaryBase):
         return group_timetable
 
     def get_feed(self):
-        my_feed = self.get(
-            f"users/me/feed", params={"date": datetime.datetime.now()}
-        )
+        my_feed = self.get(f"users/me/feed", params={"date": datetime.datetime.now()})
         return my_feed
 
     def get_user_groups(self, user_id: int):
