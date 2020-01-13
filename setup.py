@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 import pydnevnikruapi
-from os.path import join, dirname
 
 
 setup(
@@ -11,5 +10,5 @@ setup(
     packages=find_packages(),
     description="simple wrapper for dnevnik.ru API",
     install_requires=["requests", "aiohttp"],
-    long_description=open(join(dirname(__file__), 'README.md')).read()
+    long_description="https://kesha1225.github.io/DnevnikRuAPI/"
 )

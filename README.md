@@ -12,6 +12,10 @@
 ## Установка
 
 ```sh
+pip install pydnevnikruapi
+```
+или
+```sh
 pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgrade
 ```
 
