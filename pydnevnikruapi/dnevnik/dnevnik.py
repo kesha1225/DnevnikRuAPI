@@ -1,9 +1,13 @@
-import requests
 import datetime
+
+import requests
 from pydnevnikruapi.dnevnik.exceptions import DiaryError
 
 
 class DiaryBase:
+    """
+    Базовый класс для синхронного использования дневник.ру API
+    """
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.session = requests.Session()
         self.host = "https://api.dnevnik.ru/v2/"
@@ -28,12 +32,12 @@ class DiaryBase:
         json_token = token.json()
         if json_token.get("type") == "authorizationFailed":
             raise DiaryError(json_token["description"])
-        elif token.status_code != 200:
+        if token.status_code != 200:
             raise DiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
             )
-        else:
-            return json_token["accessToken"]
+
+        return json_token["accessToken"]
 
     @staticmethod
     def _check_response(response):
@@ -51,11 +55,11 @@ class DiaryBase:
         if isinstance(json_response, dict):
             if json_response.get("type") == "parameterInvalid":
                 raise DiaryError(json_response["description"])
-            elif json_response.get("type") == "apiServerError":
+            if json_response.get("type") == "apiServerError":
                 raise DiaryError(
                     "Неизвестная ошибка в API, проверьте правильность параметров"
                 )
-            elif json_response.get("type") == "apiUnknownError":
+            if json_response.get("type") == "apiUnknownError":
                 raise DiaryError(
                     "Неизвестная ошибка в API, проверьте правильность параметров"
                 )
@@ -96,6 +100,9 @@ class DiaryBase:
 
 
 class DiaryAPI(DiaryBase):
+    """
+    Класс для синхронного использования дневник.ру API
+    """
     def __init__(self, login: str = None, password: str = None, token: str = None):
         super().__init__(login, password, token)
         self.login = login
@@ -185,7 +192,7 @@ class DiaryAPI(DiaryBase):
     def get_person_school_groups(self, person_id: int, school_id: int):
         person_edu_groups_in_school = self.get(
             f"persons/{person_id}/schools/{school_id}/edu-groups"
-        ).json()
+        )
         return person_edu_groups_in_school
 
     def get_groups_pupils(self, edu_group_id: int):
@@ -357,11 +364,11 @@ class DiaryAPI(DiaryBase):
         return lesson_logs
 
     def get_lesson_log_statuses(self):
-        lesson_logs_statuses = self.get(f"lesson-log-entries/statuses").json()
+        lesson_logs_statuses = self.get(f"lesson-log-entries/statuses")
         return lesson_logs_statuses
 
     def get_lesson_info(self, lesson_id: int):
-        lesson_info = self.get(f"lessons/{lesson_id}").json()
+        lesson_info = self.get(f"lessons/{lesson_id}")
         return lesson_info
 
     def get_many_lessons_info(self, lessons_list: list):
@@ -380,7 +387,7 @@ class DiaryAPI(DiaryBase):
         return lessons_info
 
     def get_marks_histogram(self, work_id: int):
-        marks_histogram = self.get(f"works/{work_id}/marks/histogram").json()
+        marks_histogram = self.get(f"works/{work_id}/marks/histogram")
         return marks_histogram
 
     def get_subject_marks_histogram(
@@ -628,6 +635,10 @@ class DiaryAPI(DiaryBase):
         my_feed = self.get(f"users/me/feed", params={"date": datetime.datetime.now()})
         return my_feed
 
+    def get_students_groups_list(self):
+        students_groups_list = self.get(f"edu-groups/students")
+        return students_groups_list
+
     def get_user_groups(self, user_id: int):
         user_groups = self.get(f"users/{user_id}/groups")
         return user_groups
@@ -736,5 +747,5 @@ class DiaryAPI(DiaryBase):
         return work_types
 
     def invite_to_event(self, invite_id: int):
-        response = self.post(f"events/{invite_id}/invite ")
+        response = self.post(f"events/{invite_id}/invite")
         return response

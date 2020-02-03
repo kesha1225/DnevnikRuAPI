@@ -1,10 +1,14 @@
-import aiohttp
-from pydnevnikruapi.aiodnevnik.exceptions import AsyncDiaryError
 import datetime
+
+import aiohttp
 import requests
+from pydnevnikruapi.aiodnevnik.exceptions import AsyncDiaryError
 
 
 class AsyncDiaryBase:
+    """
+    Базовый класс для асинхронного использования дневник.ру API
+    """
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.token = token
         if token is None:
@@ -35,11 +39,11 @@ class AsyncDiaryBase:
         token = token_info.json()
         if token.get("type") == "authorizationFailed":
             raise AsyncDiaryError(token["description"])
-        elif token.get("type") == "maxAttempsExceeded":
+        if token.get("type") == "maxAttempsExceeded":
             raise AsyncDiaryError(token["description"])
-        else:
-            self.token = token["accessToken"]
-            return token["accessToken"]
+
+        self.token = token["accessToken"]
+        return token["accessToken"]
 
     async def close_session(self):
         await self.session.close()
@@ -62,11 +66,11 @@ class AsyncDiaryBase:
                 raise AsyncDiaryError(
                     "Незвестная ошибка API, проверьте правильность параметров"
                 )
-            elif json_response.get("type") == "apiServerError":
+            if json_response.get("type") == "apiServerError":
                 raise AsyncDiaryError(
                     "Неизвестная ошибка в API, проверьте правильность параметров"
                 )
-            elif json_response.get("type") == "parameterInvalid":
+            if json_response.get("type") == "parameterInvalid":
                 raise AsyncDiaryError(json_response["description"])
         elif isinstance(json_response, list):
             # TODO strange list response errors
@@ -135,6 +139,9 @@ class AsyncDiaryBase:
 
 
 class AsyncDiaryAPI(AsyncDiaryBase):
+    """
+    Класс для асинхронного использования дневник.ру API
+    """
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.login = login
         self.password = password
@@ -219,6 +226,10 @@ class AsyncDiaryAPI(AsyncDiaryBase):
     async def get_person_groups(self, person_id: int):
         person_edu_groups = await self.get(f"persons/{person_id}/edu-groups")
         return person_edu_groups
+
+    async def get_students_groups_list(self):
+        students_groups_list = await self.get(f"edu-groups/students")
+        return students_groups_list
 
     async def get_person_groups_all(self, person_id: int):
         person_edu_all = await self.get(f"persons/{person_id}/edu-groups/all")

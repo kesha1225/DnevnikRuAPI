@@ -10,5 +10,5 @@ setup(
     packages=find_packages(),
     description="simple wrapper for dnevnik.ru API",
     install_requires=["requests", "aiohttp"],
-    long_description="https://kesha1225.github.io/DnevnikRuAPI/"
+    long_description=open("README.md", encoding="utf-8").read()
 )
