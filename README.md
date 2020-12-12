@@ -22,6 +22,7 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 ## Документация
 
 Документация доступна здесь - https://kesha1225.github.io/DnevnikRuAPI/
+По методам здесь - https://api.dnevnik.ru/partners/swagger/ui/index
 
 ## Пример синхронного использования
 
