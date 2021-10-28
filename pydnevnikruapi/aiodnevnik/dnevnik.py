@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import urlparse, parse_qs
 
 import aiohttp
 import requests
@@ -9,6 +10,7 @@ class AsyncDiaryBase:
     """
     Базовый класс для асинхронного использования дневник.ру API
     """
+
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.token = token
         if token is None:
@@ -20,30 +22,31 @@ class AsyncDiaryBase:
         self.host = "https://api.dnevnik.ru/v2/"
 
     def get_token(self):
-        token_info = requests.post(
-            "https://api.dnevnik.ru/v2/authorizations/bycredentials",
-            json={
-                "client_id": "1d7bd105-4cd1-4f6c-9ecc-394e400b53bd",
-                "client_secret": "5dcb5237-b5d3-406b-8fee-4441c3a66c99",
-                "username": self.login,
+        token = requests.post(
+            "https://login.dnevnik.ru/login/",
+            params={
+                "ReturnUrl": "https://login.dnevnik.ru/oauth2?response_type="
+                             "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,"
+                             "FriendsAndRelatives,EducationalInfo",
+                "login": self.login,
                 "password": self.password,
-                "scope": "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar,"
-                "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
-                "Files,Wall,Messages",
             },
+            allow_redirects=True,
         )
-        if token_info.status_code in [500, 502]:
+        parsed_url = urlparse(token.url)
+        query = parse_qs(parsed_url.query)
+
+        result = query.get("result")
+        if result is None or result[0] != "success":
+            raise AsyncDiaryError("Что то не так с авторизацией")
+        if token.status_code != 200:
             raise AsyncDiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
             )
-        token = token_info.json()
-        if token.get("type") == "authorizationFailed":
-            raise AsyncDiaryError(token["description"])
-        if token.get("type") == "maxAttempsExceeded":
-            raise AsyncDiaryError(token["description"])
 
-        self.token = token["accessToken"]
-        return token["accessToken"]
+        token = parsed_url.fragment[13:-7]
+        self.token = token
+        return token
 
     async def close_session(self):
         await self.session.close()
@@ -142,6 +145,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
     """
     Класс для асинхронного использования дневник.ру API
     """
+
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.login = login
         self.password = password
@@ -345,18 +349,18 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self, lesson_id: int, person_id: int, lesson_log_entry: str
     ):
         """
-                lesson_log_entry example:
-                {
-                    "person": 0,
-                    "lesson": 0,
-                    "person_str": "string",
-                    "lesson_str": "string",
-                    "comment": "string",
-                    "status": "string",
-                    "createdDate": "2019-09-15T16:35:53.853Z"
-                }
+        lesson_log_entry example:
+        {
+            "person": 0,
+            "lesson": 0,
+            "person_str": "string",
+            "lesson_str": "string",
+            "comment": "string",
+            "status": "string",
+            "createdDate": "2019-09-15T16:35:53.853Z"
+        }
 
-                """
+        """
         lesson_log = await self.put(
             f"lessons/{lesson_id}/log-entries",
             data={"person": person_id, "lessonLogEntry": lesson_log_entry},

@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import urlparse, parse_qs
 
 import requests
 from pydnevnikruapi.dnevnik.exceptions import DiaryError
@@ -8,6 +9,7 @@ class DiaryBase:
     """
     Базовый класс для синхронного использования дневник.ру API
     """
+
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.session = requests.Session()
         self.host = "https://api.dnevnik.ru/v2/"
@@ -18,26 +20,29 @@ class DiaryBase:
 
     def get_token(self, login, password):
         token = self.session.post(
-            "https://api.dnevnik.ru/v2/authorizations/bycredentials",
-            json={
-                "client_id": "1d7bd105-4cd1-4f6c-9ecc-394e400b53bd",
-                "client_secret": "5dcb5237-b5d3-406b-8fee-4441c3a66c99",
-                "username": login,
+            "https://login.dnevnik.ru/login/",
+            params={
+                "ReturnUrl": "https://login.dnevnik.ru/oauth2?response_type="
+                "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,"
+                "FriendsAndRelatives,EducationalInfo",
+                "login": login,
                 "password": password,
-                "scope": "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar,"
-                "EducationalInfo,CommonInfo,ContactInfo,FriendsAndRelatives,"
-                "Files,Wall,Messages",
             },
+            allow_redirects=True,
         )
-        json_token = token.json()
-        if json_token.get("type") == "authorizationFailed":
-            raise DiaryError(json_token["description"])
+        parsed_url = urlparse(token.url)
+        query = parse_qs(parsed_url.query)
+
+        result = query.get("result")
+        if result is None or result[0] != "success":
+            raise DiaryError("Что то не так с авторизацией")
         if token.status_code != 200:
             raise DiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
             )
 
-        return json_token["accessToken"]
+        token = parsed_url.fragment[13:-7]
+        return token
 
     @staticmethod
     def _check_response(response):
@@ -63,6 +68,8 @@ class DiaryBase:
                 raise DiaryError(
                     "Неизвестная ошибка в API, проверьте правильность параметров"
                 )
+            if json_response.get("type") == "authorizationFailed":
+                raise DiaryError("Ошибка авторизации")
 
     def get(self, method: str, params=None, **kwargs):
         if params is None:
@@ -103,6 +110,7 @@ class DiaryAPI(DiaryBase):
     """
     Класс для синхронного использования дневник.ру API
     """
+
     def __init__(self, login: str = None, password: str = None, token: str = None):
         super().__init__(login, password, token)
         self.login = login
@@ -297,18 +305,18 @@ class DiaryAPI(DiaryBase):
 
     def put_lesson_log(self, lesson_id: int, person_id: int, lesson_log_entry: str):
         """
-                lesson_log_entry example:
-                {
-                    "person": 0,
-                    "lesson": 0,
-                    "person_str": "string",
-                    "lesson_str": "string",
-                    "comment": "string",
-                    "status": "string",
-                    "createdDate": "2019-09-15T16:35:53.853Z"
-                }
+        lesson_log_entry example:
+        {
+            "person": 0,
+            "lesson": 0,
+            "person_str": "string",
+            "lesson_str": "string",
+            "comment": "string",
+            "status": "string",
+            "createdDate": "2019-09-15T16:35:53.853Z"
+        }
 
-                """
+        """
         lesson_log = self.put(
             f"lessons/{lesson_id}/log-entries",
             data={"person": person_id, "lessonLogEntry": lesson_log_entry},
