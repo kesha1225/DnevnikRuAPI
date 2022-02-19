@@ -526,7 +526,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return marks
 
     async def get_marks_values(self):
-        marks_values = await self.get(f"https://api.dnevnik.ru/v2.0/marks/values")
+        marks_values = await self.get(f"marks/values")
         return marks_values
 
     async def get_marks_values_by_type(self, marks_type: str):
@@ -603,7 +603,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         end_time: str = str(datetime.datetime.now()),
     ):
         person_schedule = await self.get(
-            f"https://api.dnevnik.ru/v2.0/persons/{person_id}/groups/{group_id}/schedules",
+            f"persons/{person_id}/groups/{group_id}/schedules",
             params={"startDate": start_time, "endDate": end_time},
         )
         return person_schedule

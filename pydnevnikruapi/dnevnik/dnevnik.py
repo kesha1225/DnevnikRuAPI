@@ -482,7 +482,7 @@ class DiaryAPI(DiaryBase):
         return marks
 
     def get_marks_values(self):
-        marks_values = self.get(f"https://api.dnevnik.ru/v2.0/marks/values")
+        marks_values = self.get(f"marks/values")
         return marks_values
 
     def get_marks_values_by_type(self, marks_type: str):
@@ -557,7 +557,7 @@ class DiaryAPI(DiaryBase):
         end_time: datetime.datetime = datetime.datetime.now(),
     ):
         person_schedule = self.get(
-            f"https://api.dnevnik.ru/v2.0/persons/{person_id}/groups/{group_id}/schedules",
+            f"persons/{person_id}/groups/{group_id}/schedules",
             params={"startDate": start_time, "endDate": end_time},
         )
         return person_schedule
