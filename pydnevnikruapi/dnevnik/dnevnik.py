@@ -19,12 +19,14 @@ class DiaryBase:
         self.session.headers = {"Access-Token": self.token}
 
     def get_token(self, login, password):
+        return_url = "https://login.dnevnik.ru/oauth2?response_type=" \
+                     "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo," \
+                     "FriendsAndRelatives,EducationalInfo"
+
         token = self.session.post(
             "https://login.dnevnik.ru/login/",
             params={
-                "ReturnUrl": "https://login.dnevnik.ru/oauth2?response_type="
-                "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,"
-                "FriendsAndRelatives,EducationalInfo",
+                "ReturnUrl": return_url,
                 "login": login,
                 "password": password,
             },
@@ -32,10 +34,19 @@ class DiaryBase:
         )
         parsed_url = urlparse(token.url)
         query = parse_qs(parsed_url.query)
-
         result = query.get("result")
+
         if result is None or result[0] != "success":
-            raise DiaryError("Что то не так с авторизацией")
+            token = self.session.post(
+                return_url
+            )
+            parsed_url = urlparse(token.url)
+            query = parse_qs(parsed_url.query)
+            result = query.get("result")
+
+            if result is None or result[0] != "success":
+                raise DiaryError("Что то не так с авторизацией")
+
         if token.status_code != 200:
             raise DiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
