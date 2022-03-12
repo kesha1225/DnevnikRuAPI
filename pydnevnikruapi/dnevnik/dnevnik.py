@@ -19,16 +19,22 @@ class DiaryBase:
         self.session.headers = {"Access-Token": self.token}
 
     def get_token(self, login, password):
-        token = self.session.post(
+        return_url = "https://login.dnevnik.ru/oauth2?response_type=" \
+                     "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo," \
+                     "FriendsAndRelatives,EducationalInfo"
+
+        self.session.post(
             "https://login.dnevnik.ru/login/",
             params={
-                "ReturnUrl": "https://login.dnevnik.ru/oauth2?response_type="
-                "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,"
-                "FriendsAndRelatives,EducationalInfo",
+                "ReturnUrl": return_url,
                 "login": login,
                 "password": password,
             },
             allow_redirects=True,
+        )
+
+        token = self.session.post(
+            return_url
         )
         parsed_url = urlparse(token.url)
         query = parse_qs(parsed_url.query)

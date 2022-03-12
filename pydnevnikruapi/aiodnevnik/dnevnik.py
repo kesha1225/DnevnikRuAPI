@@ -22,16 +22,23 @@ class AsyncDiaryBase:
         self.host = "https://api.dnevnik.ru/v2/"
 
     def get_token(self):
-        token = requests.post(
+        session = requests.Session()
+        return_url = "https://login.dnevnik.ru/oauth2?response_type=" \
+                     "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo," \
+                     "FriendsAndRelatives,EducationalInfo"
+
+        session.post(
             "https://login.dnevnik.ru/login/",
             params={
-                "ReturnUrl": "https://login.dnevnik.ru/oauth2?response_type="
-                             "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,"
-                             "FriendsAndRelatives,EducationalInfo",
+                "ReturnUrl": return_url,
                 "login": self.login,
                 "password": self.password,
             },
             allow_redirects=True,
+        )
+
+        token = session.post(
+            return_url
         )
         parsed_url = urlparse(token.url)
         query = parse_qs(parsed_url.query)
