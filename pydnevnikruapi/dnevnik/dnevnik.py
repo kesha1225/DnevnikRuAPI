@@ -23,7 +23,7 @@ class DiaryBase:
                      "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo," \
                      "FriendsAndRelatives,EducationalInfo"
 
-        self.session.post(
+        token = self.session.post(
             "https://login.dnevnik.ru/login/",
             params={
                 "ReturnUrl": return_url,
@@ -32,16 +32,21 @@ class DiaryBase:
             },
             allow_redirects=True,
         )
-
-        token = self.session.post(
-            return_url
-        )
         parsed_url = urlparse(token.url)
         query = parse_qs(parsed_url.query)
-
         result = query.get("result")
+
         if result is None or result[0] != "success":
-            raise DiaryError("Что то не так с авторизацией")
+            token = self.session.post(
+                return_url
+            )
+            parsed_url = urlparse(token.url)
+            query = parse_qs(parsed_url.query)
+            result = query.get("result")
+
+            if result is None or result[0] != "success":
+                raise DiaryError("Что то не так с авторизацией")
+
         if token.status_code != 200:
             raise DiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
