@@ -2,6 +2,8 @@ import datetime
 from urllib.parse import urlparse, parse_qs
 
 import requests
+
+from pydnevnikruapi.constants import BASE_URL, LOGIN_URL, RETURN_URL
 from pydnevnikruapi.dnevnik.exceptions import DiaryError
 
 
@@ -12,21 +14,17 @@ class DiaryBase:
 
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.session = requests.Session()
-        self.host = "https://api.dnevnik.ru/v2/"
+        self.host = BASE_URL
         self.token = token
         if token is None:
             self.token = self.get_token(login, password)
         self.session.headers = {"Access-Token": self.token}
 
     def get_token(self, login, password):
-        return_url = "https://login.dnevnik.ru/oauth2?response_type=" \
-                     "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo," \
-                     "FriendsAndRelatives,EducationalInfo"
-
         token = self.session.post(
-            "https://login.dnevnik.ru/login/",
+            LOGIN_URL,
             params={
-                "ReturnUrl": return_url,
+                "ReturnUrl": RETURN_URL,
                 "login": login,
                 "password": password,
             },
@@ -37,9 +35,7 @@ class DiaryBase:
         result = query.get("result")
 
         if result is None or result[0] != "success":
-            token = self.session.post(
-                return_url
-            )
+            token = self.session.post(RETURN_URL)
             parsed_url = urlparse(token.url)
             query = parse_qs(parsed_url.query)
             result = query.get("result")

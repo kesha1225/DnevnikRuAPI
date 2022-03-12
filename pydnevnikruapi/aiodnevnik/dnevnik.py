@@ -1,9 +1,9 @@
+import asyncio
 import datetime
-from urllib.parse import urlparse, parse_qs
 
 import aiohttp
-import requests
 from pydnevnikruapi.aiodnevnik.exceptions import AsyncDiaryError
+from pydnevnikruapi.constants import BASE_URL, LOGIN_URL, RETURN_URL
 
 
 class AsyncDiaryBase:
@@ -13,51 +13,41 @@ class AsyncDiaryBase:
 
     def __init__(self, login: str = None, password: str = None, token: str = None):
         self.token = token
-        if token is None:
-            self.token = self.get_token()
-
         self.login = login
         self.password = password
         self.session = aiohttp.ClientSession()
-        self.host = "https://api.dnevnik.ru/v2/"
+        self.host = BASE_URL
+        if token is None:
+            self.token = asyncio.get_event_loop().run_until_complete(
+                self.get_token()
+            )  # sorry
 
-    def get_token(self):
-        session = requests.Session()
-        return_url = "https://login.dnevnik.ru/oauth2?response_type=" \
-                     "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo," \
-                     "FriendsAndRelatives,EducationalInfo"
-
-        token = session.post(
-            "https://login.dnevnik.ru/login/",
+    async def get_token(self):
+        token = await self.session.post(
+            LOGIN_URL,
             params={
-                "ReturnUrl": return_url,
+                "ReturnUrl": RETURN_URL,
                 "login": self.login,
                 "password": self.password,
             },
             allow_redirects=True,
         )
-        parsed_url = urlparse(token.url)
-        query = parse_qs(parsed_url.query)
+        query = token.real_url.query
 
         result = query.get("result")
-        if result is None or result[0] != "success":
-            token = session.post(
-                return_url
-            )
-            parsed_url = urlparse(token.url)
-            query = parse_qs(parsed_url.query)
+        if result != "success":
+            token = await self.session.post(RETURN_URL)
+            query = token.real_url.query
             result = query.get("result")
-
-            if result is None or result[0] != "success":
+            if result != "success":
                 raise AsyncDiaryError("Что то не так с авторизацией")
 
-        if token.status_code != 200:
+        if token.status != 200:
             raise AsyncDiaryError(
                 "Сайт лежит или ведутся технические работы, использование api временно невозможно"
             )
 
-        token = parsed_url.fragment[13:-7]
-        self.token = token
+        token = token.real_url.fragment[13:-7]
         return token
 
     async def close_session(self):
