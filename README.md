@@ -88,6 +88,26 @@ if __name__ == "__main__":
     # Закрываем сессию по завершению работы
 
 ```
+
+## Пример неописанного метода
+```python3
+from pydnevnikruapi.dnevnik import dnevnik
+
+
+dn = dnevnik.DiaryAPI(login="login", password="password")
+
+# допустим тут метод которого нет в библиотеке но он есть в доке свагера
+context = dn.get(f"users/me/context")
+
+# то же самое с пост методами итд (это работать не будет просто прмиер)
+lesson_log = dn.post(
+    f"lessons/123/log-entries",
+    data={"lessonLogEntry": "data"},
+)
+
+```
+
+
 Чтобы пропустить шаг завершения сессии в последнем примере воспользуйтесь [примером](https://github.com/kesha1225/DnevnikRuAPI/blob/master/examples/another_async_example.py)
 
 ## Соотнесение апи методов и методов pydnevnikruapi
