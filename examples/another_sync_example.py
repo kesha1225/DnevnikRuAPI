@@ -4,6 +4,7 @@ login = "login"
 password = "password"
 
 with dnevnik.DiaryAPI(login=login, password=password) as dn:
-    print(dn.get_classmates())
-
-    print(dn.get_context())
+    feed = dn.get_feed()
+    print(feed)
+    info = dn.get_info()
+    print(info)

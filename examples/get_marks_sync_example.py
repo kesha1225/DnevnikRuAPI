@@ -10,7 +10,7 @@ context = dn.get_context()
 user_id = context["personId"]
 school_id = context["schoolIds"][0]
 
-# все оценки юзера
+# Все оценки юзера
 marks = dn.get_person_marks(
     user_id,
     school_id,
