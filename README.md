@@ -1,6 +1,6 @@
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-beta-blue" />
-  <img alt="Python 3.7+" src="https://img.shields.io/badge/Python-3.7+-%23FFD242" />
+  <img alt="Python 3.13+" src="https://img.shields.io/badge/Python-3.13+-%23FFD242" />
   <img alt="code-style" src="https://img.shields.io/badge/code--style-black-%23000000" />
   <img alt="ШУЕ-ППШ" src="https://img.shields.io/badge/%D0%A8%D0%A3%D0%95-%D0%9F%D0%9F%D0%A8-red" />
   <img alt="The Unlicense" src="https://img.shields.io/badge/license-The%20Unlicense-blue" />
@@ -21,97 +21,96 @@ pip install https://github.com/kesha1225/DnevnikRuAPI/archive/master.zip --upgra
 
 ## ℹ️ Документация
 
-Документация доступна здесь - https://kesha1225.github.io/DnevnikRuAPI/
-По методам здесь - https://api.dnevnik.ru/partners/swagger/ui/index
+По методам API - https://api.dnevnik.ru/partners/swagger/ui/index
 
 > [!CAUTION]
 > Некоторые методы могут быть недоступны, ниже представлен список поддерживаемых эндпоинтов.
 
-## Пример синхронного использования
+> [!NOTE]
+> Библиотека поддерживает только асинхронное использование (async/await).
 
-#### Получение домашнего задания на указанный период без токена.
+## Пример использования
 
-```python3
-from pydnevnikruapi.dnevnik import dnevnik
-from datetime import datetime
-
-login = "login"
-password = "password"
-# Получаем доступ через логин и пароль
-
-dn = dnevnik.DiaryAPI(login=login, password=password)
-
-print(dn.get_school_homework(1000002283077, datetime(2019, 9, 5), datetime(2019, 9, 15)))
-#  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
-
-print(dn.get_edu_groups())
-#  Получение групп обучения текущего пользователя
-```
-
-## Пример асинхронного использования
-
-#### Получение домашнего задания на указанный период без токена.
+#### Получение домашнего задания на указанный период
 
 ```python3
-from pydnevnikruapi.aiodnevnik import dnevnik
-from pydnevnikruapi.aiodnevnik.utils import TaskManager
+import aiohttp
+from pydnevnikruapi import AsyncDiaryAPI
 import asyncio
 from datetime import datetime
 
 
 async def get_dn_info():
-    homework = await dn.get_school_homework(
-        1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
-    )
-    #  Получение домашнего задания текущего пользователя для школы с id 1000002283077 в период с 05-09-2019 по 15-09-2019
-    print(homework)
+    async with aiohttp.ClientSession() as session:
+        dn = AsyncDiaryAPI(session=session, login="login", password="password")
+        await dn.set_token()
 
-    edu_groups = await dn.get_edu_groups()
-    #  Получение групп обучения текущего пользователя
-    print(edu_groups)
-
-
-async def close_session():
-    await dn.close_session()
-    #  В конце использования закрываем сессию
+        homework = await dn.get_school_homework(
+            1000002283077, 
+            datetime(2019, 9, 5).isoformat(), 
+            datetime(2019, 9, 15).isoformat()
+        )
+        print(homework)
+        
+        edu_groups = await dn.get_edu_groups()
+        print(edu_groups)
 
 
 if __name__ == "__main__":
-    login = "login"
-    password = "password"
-    dn = dnevnik.AsyncDiaryAPI(login=login, password=password)
-    # Получаем доступ через логин и пароль
-
-    loop = asyncio.get_event_loop()
-    # Добавляем все наши функции в event loop через Task Manager
-
-    task_manager = TaskManager(loop)
-    task_manager.add_task(get_dn_info)
-    task_manager.run(on_shutdown=close_session)
-    # Закрываем сессию по завершению работы
-
+    asyncio.run(get_dn_info())
 ```
 
-## Пример неописанного метода
+## Использование с токеном
+
 ```python3
-from pydnevnikruapi.dnevnik import dnevnik
+import aiohttp
+from pydnevnikruapi import AsyncDiaryAPI
+import asyncio
 
 
-dn = dnevnik.DiaryAPI(login="login", password="password")
+async def main():
+    async with aiohttp.ClientSession() as session:
+        # Используем существующий токен
+        dn = AsyncDiaryAPI(session=session, token="your_token_here")
+        
+        user_info = await dn.get_info()
+        print(user_info)
 
-# допустим тут метод которого нет в библиотеке но он есть в доке свагера
-user_info = dn.get(f"users/me")
 
-# то же самое с пост методами итд (это работать не будет просто прмиер)
-lesson_log = dn.post(
-    f"lessons/123/log-entries",
-    data={"lessonLogEntry": "data"},
-)
-
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
+## Пример использования неописанного метода
 
-Чтобы пропустить шаг завершения сессии в последнем примере воспользуйтесь [примером](https://github.com/kesha1225/DnevnikRuAPI/blob/master/examples/another_async_example.py)
+Если нужного метода нет в библиотеке, но он есть в документации API:
+
+```python3
+import asyncio
+import aiohttp
+from pydnevnikruapi import AsyncDiaryAPI
+
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        dn = AsyncDiaryAPI(session=session, login="login", password="password")
+        await dn.set_token()
+
+        # Прямое использование API методов
+        user_info = await dn.get("users/me")
+        print(user_info)
+        
+        # POST запрос (пример)
+        lesson_log = await dn.post(
+            "lessons/123/log-entries",
+            data={"lessonLogEntry": "data"},
+        )
+        print(lesson_log)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 ## 🗒️ Список поддерживаемых API эндпоинтов, а также их соотношение с функциями
 
