@@ -1,10 +1,15 @@
-from pydnevnikruapi.aiodnevnik import dnevnik
+import aiohttp
+from pydnevnikruapi import AsyncDiaryAPI
 import asyncio
 from datetime import datetime
-from pydnevnikruapi.aiodnevnik.utils import TaskManager
 
 
 async def get_dn_info():
+    dn = AsyncDiaryAPI(
+        session=aiohttp.ClientSession(), login="login", password="password"
+    )
+    await dn.set_token()
+
     homework = await dn.get_school_homework(
         1000002283077, str(datetime(2019, 9, 5)), str(datetime(2019, 9, 15))
     )
@@ -12,15 +17,8 @@ async def get_dn_info():
     edu_groups = await dn.get_edu_groups()
     print(edu_groups)
 
-
-async def close_session():
     await dn.close_session()
 
 
 if __name__ == "__main__":
-    dn = dnevnik.AsyncDiaryAPI("login", "password")
-
-    loop = asyncio.get_event_loop()
-    task_manager = TaskManager(loop)
-    task_manager.add_task(get_dn_info)
-    task_manager.run(on_shutdown=close_session)
+    asyncio.run(get_dn_info())

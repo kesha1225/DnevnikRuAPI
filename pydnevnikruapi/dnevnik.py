@@ -1,28 +1,32 @@
-import asyncio
 import datetime
+from typing import Any, cast
 
 import aiohttp
-from pydnevnikruapi.aiodnevnik.exceptions import AsyncDiaryError
+from pydnevnikruapi.exceptions import AsyncDiaryError
 from pydnevnikruapi.constants import BASE_URL, LOGIN_URL, RETURN_URL
 
 
-class AsyncDiaryBase:
-    """
-    Базовый класс для асинхронного использования дневник.ру API
-    """
-
-    def __init__(self, login: str = None, password: str = None, token: str = None):
-        self.token = token
+class AsyncDiaryAPI:
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+        login: str | None = None,
+        password: str | None = None,
+        token: str | None = None,
+    ):
+        self._token = token
         self.login = login
         self.password = password
-        self.session = aiohttp.ClientSession()
+        self.session = session
         self.host = BASE_URL
-        if token is None:
-            self.token = asyncio.get_event_loop().run_until_complete(
-                self.get_token()
-            )  # sorry
 
-    async def get_token(self):
+        if token is None and login is None and password is None:
+            raise ValueError("Login, password or token is required")
+
+    async def get_token(self) -> str:
+        if self.login is None or self.password is None:
+            raise ValueError("Login and password are required")
+
         token = await self.session.post(
             LOGIN_URL,
             params={
@@ -40,21 +44,30 @@ class AsyncDiaryBase:
             query = token.real_url.query
             result = query.get("result")
             if result != "success":
-                raise AsyncDiaryError("Что то не так с авторизацией")
+                raise AsyncDiaryError("Authentication failed")
 
         if token.status != 200:
             raise AsyncDiaryError(
-                "Сайт лежит или ведутся технические работы, использование api временно невозможно"
+                "The site is down or technical work is being carried out, the use of the api is temporarily impossible"
             )
 
         token = token.real_url.fragment[13:-7]
         return token
 
+    async def set_token(self) -> None:
+        self._token = await self.get_token()
+
     async def close_session(self):
         await self.session.close()
 
+    @property
+    def token(self) -> str:
+        if self._token is None:
+            raise AsyncDiaryError("Token is not set. call set_token() to set the token")
+        return self._token
+
     @staticmethod
-    async def _check_response(response):
+    async def _check_response(response: aiohttp.ClientResponse):
         if response.content_type == "text/html":
             error_html = await response.text()
             error_text = " ".join(
@@ -69,19 +82,19 @@ class AsyncDiaryBase:
         if isinstance(json_response, dict):
             if json_response.get("type") == "apiUnknownError":
                 raise AsyncDiaryError(
-                    "Незвестная ошибка API, проверьте правильность параметров"
+                    "Unknown API error, check the correctness of the parameters"
                 )
             if json_response.get("type") == "apiServerError":
                 raise AsyncDiaryError(
-                    "Неизвестная ошибка в API, проверьте правильность параметров"
+                    "Unknown API error, check the correctness of the parameters"
                 )
             if json_response.get("type") == "parameterInvalid":
-                raise AsyncDiaryError(json_response["description"])
-        elif isinstance(json_response, list):
-            # TODO strange list response errors
-            pass
+                desc = cast(str, json_response.get("description", "Invalid parameter"))
+                raise AsyncDiaryError(desc)
 
-    async def get(self, method: str, params=None, **kwargs):
+    async def get(
+        self, method: str, params: dict[str, Any] | None = None, **kwargs: Any
+    ):
         if params is None:
             params = {}
 
@@ -95,12 +108,14 @@ class AsyncDiaryBase:
             json_response = await response.json()
         return json_response
 
-    async def post(self, method: str, data=None, **kwargs):
+    async def post(
+        self, method: str, data: dict[str, Any] | None = None, **kwargs: Any
+    ):
         if data is None:
             data = {}
         async with self.session.post(
             self.host + method,
-            json=data,  # json or data?
+            json=data,
             headers={"Access-Token": self.token},
             **kwargs,
         ) as response:
@@ -108,7 +123,9 @@ class AsyncDiaryBase:
             json_response = await response.json()
         return json_response
 
-    async def delete(self, method: str, params=None, **kwargs):
+    async def delete(
+        self, method: str, params: dict[str, Any] | None = None, **kwargs: Any
+    ):
         if params is None:
             params = {}
 
@@ -122,7 +139,9 @@ class AsyncDiaryBase:
             json_response = await response.json()
         return json_response
 
-    async def put(self, method: str, params=None, **kwargs):
+    async def put(
+        self, method: str, params: dict[str, Any] | None = None, **kwargs: Any
+    ):
         if params is None:
             params = {}
 
@@ -136,24 +155,6 @@ class AsyncDiaryBase:
             json_response = await response.json()
         return json_response
 
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close_session()
-
-
-class AsyncDiaryAPI(AsyncDiaryBase):
-    """
-    Класс для асинхронного использования дневник.ру API
-    """
-
-    def __init__(self, login: str = None, password: str = None, token: str = None):
-        self.login = login
-        self.password = password
-
-        super().__init__(login, password, token)
-
     async def get_school(self):
         school_id = await self.get("schools/person-schools")
         return school_id
@@ -163,15 +164,15 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return user_id
 
     async def get_classmates(self):
-        classmates = await self.get(f"users/me/classmates")
+        classmates = await self.get("users/me/classmates")
         return classmates
 
     async def get_context(self):
-        context = await self.get(f"users/me/context")
+        context = await self.get("users/me/context")
         return context
 
     async def get_organizations(self):
-        organizations = await self.get(f"users/me/organizations")
+        organizations = await self.get("users/me/organizations")
         return organizations
 
     async def get_organization_info(self, organization_id: int):
@@ -196,7 +197,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return memberships
 
     async def get_schools(self):
-        schools = await self.get(f"users/me/schools")
+        schools = await self.get("users/me/schools")
         return schools
 
     async def get_user_schools(self, user_id: int):
@@ -204,7 +205,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return schools
 
     async def get_edu_groups(self):
-        edu_groups = await self.get(f"users/me/edu-groups")
+        edu_groups = await self.get("users/me/edu-groups")
         return edu_groups
 
     async def get_user_edu_groups(self, user_id: int):
@@ -212,16 +213,16 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return edu_groups
 
     async def get_memberships(self):
-        schools_memberships = await self.get(f"users/me/school-memberships")
+        schools_memberships = await self.get("users/me/school-memberships")
         return schools_memberships
 
     async def get_group_info(self, edu_group_id: int):
         edu_group_info = await self.get(f"edu-groups/{edu_group_id}")
         return edu_group_info
 
-    async def get_groups_info(self, edu_groups_list: list):
+    async def get_groups_info(self, edu_groups_list: list[str]):
         edu_groups_info = await self.get(
-            f"edu-groups", params={"eduGroups": edu_groups_list}
+            "edu-groups", params={"eduGroups": edu_groups_list}
         )
         return edu_groups_info
 
@@ -234,7 +235,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return person_edu_groups
 
     async def get_students_groups_list(self):
-        students_groups_list = await self.get(f"edu-groups/students")
+        students_groups_list = await self.get("edu-groups/students")
         return students_groups_list
 
     async def get_person_groups_all(self, person_id: int):
@@ -279,7 +280,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return group_subject_marks
 
     async def get_friends(self):
-        my_friends = await self.get(f"users/me/friends")
+        my_friends = await self.get("users/me/friends")
         return my_friends
 
     async def get_user_friends(self, user_id: int):
@@ -289,9 +290,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
     async def get_school_homework(
         self,
         school_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         homework = await self.get(
             f"users/me/school/{school_id}/homeworks",
             params={"startDate": start_time, "endDate": end_time},
@@ -300,7 +305,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
 
     async def get_homework_by_id(self, homework_id: int):
         homework = await self.get(
-            f"users/me/school/homeworks", params={"homeworkId": homework_id}
+            "users/me/school/homeworks", params={"homeworkId": homework_id}
         )
         return homework
 
@@ -308,9 +313,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         school_id: int,
         person_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         homework = await self.get(
             f"persons/{person_id}/school/{school_id}/homeworks",
             params={"startDate": start_time, "endDate": end_time},
@@ -369,9 +378,9 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         )
         return lesson_log
 
-    async def get_lesson_logs(self, lessons_ids: list):
+    async def get_lesson_logs(self, lessons_ids: list[str]):
         lesson_logs = await self.get(
-            f"lesson-log-entries", params={"lessons": lessons_ids}
+            "lesson-log-entries", params={"lessons": lessons_ids}
         )
         return lesson_logs
 
@@ -385,9 +394,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         group_id: int,
         subject_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         lesson_logs = await self.get(
             f"lesson-log-entries/group/{group_id}",
             params={"subject": subject_id, "from": start_time, "to": end_time},
@@ -398,9 +411,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         person_id: int,
         subject_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         lesson_logs = await self.get(
             f"lesson-log-entries/person/{person_id}/subject/{subject_id}",
             params={"subject": subject_id, "from": start_time, "to": end_time},
@@ -410,9 +427,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
     async def get_person_lesson_logs(
         self,
         person_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         lesson_logs = await self.get(
             f"persons/{person_id}/lesson-log-entries",
             params={"startDate": start_time, "endDate": end_time},
@@ -420,23 +441,27 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return lesson_logs
 
     async def get_lesson_log_statuses(self):
-        lesson_logs_statuses = self.get(f"lesson-log-entries/statuses")
+        lesson_logs_statuses = await self.get("lesson-log-entries/statuses")
         return lesson_logs_statuses
 
     async def get_lesson_info(self, lesson_id: int):
         lesson_info = await self.get(f"lessons/{lesson_id}")
         return lesson_info
 
-    async def get_many_lessons_info(self, lessons_list: list):
-        lesson_info = await self.post(f"lessons/many", data={"lessons": lessons_list})
+    async def get_many_lessons_info(self, lessons_list: list[str]):
+        lesson_info = await self.post("lessons/many", data={"lessons": lessons_list})
         return lesson_info
 
     async def get_group_lessons_info(
         self,
         group_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         lessons_info = await self.get(
             f"edu-groups/{group_id}/lessons/{start_time}/{end_time}"
         )
@@ -466,16 +491,20 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         marks = await self.get(f"lessons/{lesson_id}/marks")
         return marks
 
-    async def get_marks_by_lessons(self, lessons_ids: list):
-        marks = await self.post(f"lessons/marks", data={"lessons": lessons_ids})
+    async def get_marks_by_lessons(self, lessons_ids: list[str]):
+        marks = await self.post("lessons/marks", data={"lessons": lessons_ids})
         return marks
 
     async def get_group_marks_period(
         self,
         group_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         marks = await self.get(f"edu-groups/{group_id}/marks/{start_time}/{end_time}")
         return marks
 
@@ -483,9 +512,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         group_id: int,
         subject_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         marks = await self.get(
             f"edu-groups/{group_id}/subjects/{subject_id}/marks/{start_time}/{end_time}"
         )
@@ -495,9 +528,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         person_id: int,
         school_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         marks = await self.get(
             f"persons/{person_id}/schools/{school_id}/marks/{start_time}/{end_time}"
         )
@@ -508,27 +545,35 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return marks
 
     async def get_person_work_marks(self, person_id: int, work_id: int):
-        marks = self.get(f"persons/{person_id}/works/{work_id}/marks")
+        marks = await self.get(f"persons/{person_id}/works/{work_id}/marks")
         return marks
 
     async def get_person_subject_marks(
         self,
         person_id: int,
         subject_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         marks = await self.get(
             f"persons/{person_id}/subjects/{subject_id}/marks/{start_time}/{end_time}"
         )
         return marks
 
-    async def get_marks_by_date(self, person_id: int, date=datetime.datetime.now()):
+    async def get_marks_by_date(
+        self, person_id: int, date: datetime.datetime | None = None
+    ):
+        if date is None:
+            date = datetime.datetime.now()
         marks = await self.get(f"persons/{person_id}/marks/{date}")
         return marks
 
     async def get_marks_values(self):
-        marks_values = await self.get(f"marks/values")
+        marks_values = await self.get("marks/values")
         return marks_values
 
     async def get_marks_values_by_type(self, marks_type: str):
@@ -551,8 +596,10 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         group_id: int,
         period: int,
-        date: datetime.datetime = datetime.datetime.now(),
+        date: datetime.datetime | None = None,
     ):
+        if date is None:
+            date = datetime.datetime.now()
         marks = await self.get(
             f"edu-groups/{group_id}/reporting-periods/{period}/avg-marks/{date}"
         )
@@ -561,9 +608,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
     async def get_group_average_marks_by_time(
         self,
         group_id: int,
-        start_time: datetime.datetime = datetime.datetime.now(),
-        end_time: datetime.datetime = datetime.datetime.now(),
+        start_time: datetime.datetime | None = None,
+        end_time: datetime.datetime | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now()
+        if end_time is None:
+            end_time = datetime.datetime.now()
         marks = await self.get(
             f"edu-groups/{group_id}/avg-marks/{start_time}/{end_time}"
         )
@@ -580,7 +631,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return marks
 
     async def get_group_persons(self, group_id: int):
-        persons = await self.get(f"persons", params={"eduGroup": group_id})
+        persons = await self.get("persons", params={"eduGroup": group_id})
         return persons
 
     async def get_person_info(self, person_id: int):
@@ -599,10 +650,10 @@ class AsyncDiaryAPI(AsyncDiaryBase):
 
     async def get_person_schedule(
         self,
-        person_id,
-        group_id,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        person_id: str,
+        group_id: str,
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
         person_schedule = await self.get(
             f"persons/{person_id}/groups/{group_id}/schedules",
@@ -612,9 +663,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
 
     async def get_best_schools(
         self,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         best_schools = await self.get(f"school-rating/from/{start_time}/to/{end_time}")
         return best_schools
 
@@ -622,16 +677,16 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         school_profile = await self.get(f"schools/{school_id}")
         return school_profile
 
-    async def get_schools_profiles(self, schools_ids: list):
-        school_profiles = await self.get(f"schools", params={"schools": schools_ids})
+    async def get_schools_profiles(self, schools_ids: list[str]):
+        school_profiles = await self.get("schools", params={"schools": schools_ids})
         return school_profiles
 
     async def get_my_schools(self):
-        person_schools = await self.get(f"schools/person-schools")
+        person_schools = await self.get("schools/person-schools")
         return person_schools
 
     async def get_all_schools(self):
-        all_schools = await self.get(f"schools/cities")
+        all_schools = await self.get("schools/cities")
         return all_schools
 
     async def get_school_params(self, school_id: int):
@@ -650,8 +705,8 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         task_info = await self.get(f"tasks/{task_id}")
         return task_info
 
-    async def get_lessons_task(self, lessons_ids: list):
-        lessons_task = await self.get(f"tasks", params={"lessons": lessons_ids})
+    async def get_lessons_task(self, lessons_ids: list[str]):
+        lessons_task = await self.get("tasks", params={"lessons": lessons_ids})
         return lessons_task
 
     async def get_lesson_task(self, lesson_id: int):
@@ -662,9 +717,13 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         self,
         person_id: int,
         subject_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         person_subject_tasks = await self.get(
             f"persons/{person_id}/tasks",
             params={"subject": subject_id, "from": start_time, "to": end_time},
@@ -689,7 +748,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
 
     async def get_feed(self):
         my_feed = await self.get(
-            f"users/me/feed", params={"date": str(datetime.datetime.now())}
+            "users/me/feed", params={"date": datetime.datetime.now().isoformat()}
         )
         return my_feed
 
@@ -706,7 +765,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return children
 
     async def get_children(self):
-        my_children = await self.get(f"users/me/children")
+        my_children = await self.get("users/me/children")
         return my_children
 
     async def get_user_relatives(self, user_id: int):
@@ -714,11 +773,11 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return user_rel
 
     async def get_relatives(self):
-        my_rel = await self.get(f"users/me/relatives")
+        my_rel = await self.get("users/me/relatives")
         return my_rel
 
     async def get_children_relatives(self):
-        my_children_relatives = await self.get(f"users/me/childrenrelatives")
+        my_children_relatives = await self.get("users/me/childrenrelatives")
         return my_children_relatives
 
     async def get_user_info(self, user_id: int):
@@ -726,7 +785,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return user_info
 
     async def get_roles(self):
-        my_roles = await self.get(f"users/me/roles")
+        my_roles = await self.get("users/me/roles")
         return my_roles
 
     async def get_user_roles(self, user_id: int):
@@ -736,16 +795,20 @@ class AsyncDiaryAPI(AsyncDiaryBase):
     async def get_group_average_marks(
         self,
         group_id: int,
-        start_time: str = str(datetime.datetime.now()),
-        end_time: str = str(datetime.datetime.now()),
+        start_time: str | None = None,
+        end_time: str | None = None,
     ):
+        if start_time is None:
+            start_time = datetime.datetime.now().isoformat()
+        if end_time is None:
+            end_time = datetime.datetime.now().isoformat()
         weighted_group_average_marks = await self.get(
             f"edu-groups/{group_id}/wa-marks/{start_time}/{end_time}"
         )
         return weighted_group_average_marks
 
     async def get_lesson_works(self, lesson_id: int):
-        lesson_works = await self.get(f"works", params={"lesson": lesson_id})
+        lesson_works = await self.get("works", params={"lesson": lesson_id})
         return lesson_works
 
     async def create_lesson_work(self, work: str):
@@ -793,7 +856,7 @@ class AsyncDiaryAPI(AsyncDiaryBase):
           ]
         }
         """
-        lesson_works = await self.post(f"works", data={"work": work})
+        lesson_works = await self.post("works", data={"work": work})
         return lesson_works
 
     async def get_work_types(self, school_id: int):
@@ -801,5 +864,5 @@ class AsyncDiaryAPI(AsyncDiaryBase):
         return work_types
 
     async def invite_to_event(self, invite_id: int):
-        response = await self.post(f"events/{invite_id}/invite ")
+        response = await self.post(f"events/{invite_id}/invite")
         return response
