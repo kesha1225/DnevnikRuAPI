@@ -2,6 +2,5 @@ BASE_URL = "https://api.dnevnik.ru/v2/"
 LOGIN_URL = "https://login.dnevnik.ru/login/"
 RETURN_URL = (
     "https://login.dnevnik.ru/oauth2?response_type="
-    "token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,"
-    "FriendsAndRelatives,EducationalInfo"
+    "token&client_id=b8006d75-70a9-4291-885c-13d8511bb2ae&scope=CommonInfo,EducationalInfo"
 )

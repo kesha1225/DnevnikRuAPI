@@ -1,2 +1,0 @@
-class DiaryError(Exception):
-    pass

@@ -1,18 +1,24 @@
-[tool.poetry]
+[project]
 name = "pydnevnikruapi"
-version = "0.1.1"
-description = ""
+version = "0.2.0"
+description = "Wrapper for dnevnik.ru API"
 readme = "README.md"
-authors = ["kesha1225 <samedov03@mail.ru>"]
+requires-python = ">=3.13"
+dependencies = [
+    "aiohttp>=3.12.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.7"
-aiohttp = "^3.6.2"
-requests = "^2.22.0"
+[dependency-groups]
+dev = [
+    "ruff>=0.14.0",
+]
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["uv_build>=0.9.1,<0.10.0"]
+build-backend = "uv_build"
+
+
+[tool.uv.build-backend]
+module-name = "pydnevnikruapi"
+module-root = ""

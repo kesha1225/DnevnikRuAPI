@@ -1,5 +1,3 @@
-from pydnevnikruapi import *
+from .dnevnik import AsyncDiaryAPI
 
-__version__ = "0.0.7"
-__author__ = "kesha1225"
-__status__ = "Development"
+__all__ = ["AsyncDiaryAPI"]
