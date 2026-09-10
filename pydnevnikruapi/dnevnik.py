@@ -449,7 +449,7 @@ class AsyncDiaryAPI:
         return lesson_info
 
     async def get_many_lessons_info(self, lessons_list: list[str]):
-        lesson_info = await self.post("lessons/many", data={"lessons": lessons_list})
+        lesson_info = await self.post("lessons/many", data=lessons_list)
         return lesson_info
 
     async def get_group_lessons_info(
